@@ -1,6 +1,8 @@
 # 2D Платформер с генерацией уровня
 ![Relative date](https://img.shields.io/date/1683601200?style=plastic&logo=aseprite&logoColor=f09d13)
 
+[Инструкция по работе с инструментами разработки](manual.md)
+
 ## Gameplay
 1. *(Процедурная?)* Генерация уровня
 2. Доп. объекты: ускорители, шипы, ба**т**ут

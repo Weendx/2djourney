@@ -1,7 +1,10 @@
 build/
+<<<<<<< HEAD
 .vs/
 out/
 *.lnk
+=======
+>>>>>>> e9c6fa0dc35d323288e1944ea9fdc77ed107331d
 
 # Prerequisites
 *.d

@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-set(project 2djourney)
-project(${project} LANGUAGES CXX)
+project(2djourney LANGUAGES CXX)
 
 include(FetchContent)
 FetchContent_Declare(SFML
@@ -9,7 +8,7 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 set(src src)
-add_executable(${project} 
+add_executable(${PROJECT_NAME} 
     src/main.cpp
     src/core.cpp
     src/object.cpp
@@ -17,18 +16,18 @@ add_executable(${project}
     src/text.cpp
 )
 
-# include_directories("${CMAKE_SOURCE_DIR}/src")
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 
-target_link_libraries(${project} PRIVATE sfml-graphics)
-target_compile_features(${project} PRIVATE cxx_std_17)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 if (WIN32 AND BUILD_SHARED_LIBS)
-    add_custom_command(TARGET ${project} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${project}> $<TARGET_FILE_DIR:${project}> COMMAND_EXPAND_LISTS)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${project}> COMMAND_EXPAND_LISTS)
 endif()
 
-# target_include_directories(${project} PUBLIC "${CMAKE_SOURCE_DIR}/src")
-install(TARGETS ${project})
+# target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/src")
+install(TARGETS ${PROJECT_NAME})
 
 
 #message(NOTICE "dir loc: ${CMAKE_BINARY_DIR}")

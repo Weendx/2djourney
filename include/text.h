@@ -8,7 +8,7 @@
 #include <SFML/System/String.hpp>
 #include "object.h"
 
-class Text: public Object<sf::Text> {
+class Text: virtual public Object<sf::Text> {
  public:
     Text() = delete;
     Text(const sf::Font &font);

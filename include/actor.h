@@ -6,7 +6,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include "object.h"
 
-class Actor : public Object<sf::Sprite> {
+class Actor : virtual public Object<sf::Sprite> {
  public:
     Actor(const sf::Texture &texture, const sf::IntRect &rectangle);
     Actor(const Actor& right);

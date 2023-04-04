@@ -15,7 +15,7 @@ template <class T>
 class Object: public sf::Drawable {
  public:
     Object();
-    ~Object();
+    virtual ~Object();
     Object(const T& drawable);
     void setName(const std::string &name) { m_name = name; }
     void adjustScale(const sf::Vector2f &factors);

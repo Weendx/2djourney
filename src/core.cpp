@@ -38,7 +38,7 @@ void Core::process() {
         while (window.pollEvent(event)) {
             this->handleEvent(event);
         }
-
+        
         // TODO: вынести
         fps = 1 / deltaTime.asSeconds();
         if (fpsUpdateTimer.getElapsedTime().asSeconds() >= 0.5) {

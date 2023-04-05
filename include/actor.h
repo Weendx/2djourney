@@ -7,7 +7,7 @@
 #include "object.h"
 
 class Actor 
-   : public Object, public sf::Sprite {
+   : virtual public Object, public sf::Sprite {
  public:
     Actor(const sf::Texture& texture, const sf::IntRect& rectangle);
     virtual ~Actor() {} 

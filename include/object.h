@@ -9,14 +9,18 @@
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include "SFML/System/Time.hpp"
+#include "SFML/Window/Event.hpp"
 
 class Object: public sf::Drawable {
  public:
     Object() {};
-    virtual ~Object() {};
+    ~Object() {};
     void setName(const std::string &name) { m_name = name; }
-    virtual void adjustScale(const sf::Vector2f &factors);
+    virtual void adjustScale(const sf::Vector2f &factors) = 0;
     virtual operator std::string() const = 0;
+    virtual void onUpdate(const sf::Time &deltaTime) = 0;
+    virtual void handleEvent(sf::Event &event) = 0;
  protected:
     std::string m_name;
 };

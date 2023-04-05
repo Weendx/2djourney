@@ -12,6 +12,7 @@ class Text: virtual public Object, public sf::Text {
  public:
     Text(const sf::Font &font);
     Text(const sf::String &text, const sf::Font &font);
+    Text(const sf::String &text, const sf::Font &font, const unsigned int &characterSize);
     virtual ~Text() {}
 
     void adjustScale(const sf::Vector2f &factors) override;

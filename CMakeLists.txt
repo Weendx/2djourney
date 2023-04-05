@@ -8,12 +8,15 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
 
 set(src src)
+set(objects objects)
 add_executable(${PROJECT_NAME} 
-    src/main.cpp
-    src/core.cpp
-    src/object.cpp
-    src/actor.cpp
-    src/text.cpp
+    ${src}/main.cpp
+    ${src}/core.cpp
+    ${src}/object.cpp
+    ${src}/actor.cpp
+    ${src}/text.cpp
+    ${src}/player.cpp
+    ${src}/${objects}/fpsCounter.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")
@@ -24,6 +27,13 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 if (WIN32 AND BUILD_SHARED_LIBS)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${project}> COMMAND_EXPAND_LISTS)
+endif()
+
+if (WIN32)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
 endif()
 
 # target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/src")

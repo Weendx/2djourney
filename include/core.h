@@ -23,8 +23,8 @@ class Core {
     void setScale(const sf::Vector2f &newScale);
     void setScale(const float &factorX, const float &factorY);
     void updateScale();
-
-    float fps;
+   
+    float getFPS() const { return m_fps; }
  private:
     void close();
     sf::RenderWindow* m_window;
@@ -32,6 +32,7 @@ class Core {
     // std::vector<Object*> m_actors;
     // std::vector<Object*> m_texts;
     sf::Vector2f m_scale;
+    float m_fps;
 };
 
 #endif  // CORE_H

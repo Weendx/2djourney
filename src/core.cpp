@@ -8,7 +8,7 @@
 #include "text.h"
 
 Core::Core() 
-    : m_scale(sf::Vector2f(1.0, 1.0)), fps(0.0) {}
+    : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0) {}
 
 void Core::close() {
     m_window->close();
@@ -24,44 +24,43 @@ void Core::process() {
     sf::Clock fpsUpdateTimer;
 
     /// TODO: вынести
-    sf::Font defaultFont;
-    if (!defaultFont.loadFromFile("resources/fonts/default.ttf"))
-        throw std::runtime_error("Can't load default font");
     
-    Text* fpsCounter = new Text(defaultFont);
-    registerObject(fpsCounter);
+    
     /// ??
+    
+    updateScale();
     
     while ( window.isOpen() ) {
         sf::Time deltaTime = deltaClock.restart();
         sf::Event event;
 
-        updateScale();
 
         while (window.pollEvent(event)) {
             this->handleEvent(event);
+            for (auto e : m_objects)
+                e->handleEvent(event);
         }
         
         // TODO: вынести
-        fps = 1 / deltaTime.asSeconds();
-        if (fpsUpdateTimer.getElapsedTime().asSeconds() >= 0.5) {
-            fpsCounter->setString("FPS: " + std::to_string((int8_t) fps));
-            fpsCounter->setFillColor(sf::Color::White);
-            fpsUpdateTimer.restart();
-        }
+        m_fps = 1 / deltaTime.asSeconds();
+        // if (fpsUpdateTimer.getElapsedTime().asSeconds() >= 0.5) {
+        //     fpsCounter->setString("FPS: " + std::to_string((int8_t) fps));
+        //     fpsCounter->setFillColor(sf::Color::White);
+        //     fpsUpdateTimer.restart();
+        // }
 
         window.clear();
 
-        for (auto e : m_objects) 
+        for (auto e : m_objects) {
+            e->onUpdate(deltaTime);
             window.draw(*e);
+        }
         //
         // for (auto e : m_texts)
         //     window.draw(*e);
 
         window.display();
     }
-
-    delete fpsCounter;
 }
 
 void Core::handleEvent(sf::Event event) {

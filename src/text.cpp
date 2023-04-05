@@ -4,6 +4,9 @@ Text::Text(const sf::Font &font): sf::Text("", font) {}
 
 Text::Text(const sf::String &text, const sf::Font &font)
     : sf::Text(text, font) {}
+
+Text::Text(const sf::String &text, const sf::Font &font, const unsigned int &characterSize)
+    : sf::Text(text, font, characterSize) {}
 //
 // Text::Text(const Text &right) {
 //     setString(right.m_drawable->getString());

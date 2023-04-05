@@ -8,20 +8,16 @@
 #include <SFML/System/String.hpp>
 #include "object.h"
 
-class Text: virtual public Object<sf::Text> {
+class Text: virtual public Object, public sf::Text {
  public:
-    Text() = delete;
     Text(const sf::Font &font);
     Text(const sf::String &text, const sf::Font &font);
-    Text(const Text& right);
+    virtual ~Text() {}
+
+    void adjustScale(const sf::Vector2f &factors) override;
+    operator std::string() const override; 
+ private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void setString(const sf::String &text) { m_drawable->setString(text); }
-    
-    void setFillColor(const sf::Color &color) { 
-        m_drawable->setFillColor(color); 
-    }
-    
-    operator std::string() const override;
 };
 
 #endif  // TEXT_H

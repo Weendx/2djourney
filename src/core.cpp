@@ -27,7 +27,7 @@ void Core::process() {
     sf::Font defaultFont;
     if (!defaultFont.loadFromFile("resources/fonts/default.ttf"))
         throw std::runtime_error("Can't load default font");
-
+    
     Text* fpsCounter = new Text(defaultFont);
     registerObject(fpsCounter);
     /// ??
@@ -35,6 +35,9 @@ void Core::process() {
     while ( window.isOpen() ) {
         sf::Time deltaTime = deltaClock.restart();
         sf::Event event;
+
+        updateScale();
+
         while (window.pollEvent(event)) {
             this->handleEvent(event);
         }
@@ -49,11 +52,11 @@ void Core::process() {
 
         window.clear();
 
-        for (auto e : m_actors) 
+        for (auto e : m_objects) 
             window.draw(*e);
-
-        for (auto e : m_texts)
-            window.draw(*e);
+        //
+        // for (auto e : m_texts)
+        //     window.draw(*e);
 
         window.display();
     }
@@ -70,12 +73,12 @@ void Core::handleEvent(sf::Event event) {
     }
 }
 
-void Core::registerObject(Actor* actor) {
-    m_actors.push_back(actor);    
-}
+// void Core::registerObject(Actor* actor) {
+//     m_actors.push_back(actor);    
+// }
 
-void Core::registerObject(Object<sf::Text>* textObject) {
-    m_texts.push_back(textObject);
+void Core::registerObject(Object* object) {
+    m_objects.push_back(object);
 }
 
 void Core::setScale(const sf::Vector2f &newScale) {
@@ -90,8 +93,8 @@ void Core::setScale(const float &factorX, const float &factorY) {
 }
 
 void Core::updateScale() {
-    for (auto e : m_actors) 
+    for (auto e : m_objects) 
         e->adjustScale(m_scale);
-    for (auto e : m_texts)
-        e->adjustScale(m_scale);
+    // for (auto e : m_texts)
+    //     e->adjustScale(m_scale);
 }

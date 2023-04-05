@@ -6,12 +6,15 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include "object.h"
 
-class Actor : virtual public Object<sf::Sprite> {
+class Actor 
+   : public Object, public sf::Sprite {
  public:
-    Actor(const sf::Texture &texture, const sf::IntRect &rectangle);
-    Actor(const Actor& right);
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    Actor(const sf::Texture& texture, const sf::IntRect& rectangle);
+    virtual ~Actor() {} 
     operator std::string() const override;
+    void adjustScale(const sf::Vector2f &factors) override;
+ private:
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
 #endif  // ACTOR_H

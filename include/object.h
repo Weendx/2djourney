@@ -10,19 +10,14 @@
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 
-template <class T>
-
 class Object: public sf::Drawable {
  public:
-    Object();
-    virtual ~Object();
-    Object(const T& drawable);
+    Object() {};
+    virtual ~Object() {};
     void setName(const std::string &name) { m_name = name; }
-    void adjustScale(const sf::Vector2f &factors);
-    T* getDrawable() { return m_drawable; }
+    virtual void adjustScale(const sf::Vector2f &factors);
     virtual operator std::string() const = 0;
  protected:
-    T* m_drawable = nullptr;
     std::string m_name;
 };
 

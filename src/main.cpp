@@ -21,12 +21,9 @@ int main(int argc, char* argv[]) {
     sf::Font defaultFont;
     if (!defaultFont.loadFromFile("resources/fonts/default.ttf"))
         throw std::runtime_error("Can't load default font");
-    FpsCounter* fpsCounter = new FpsCounter(defaultFont);
-    core.registerObject(fpsCounter);
 
     core.setScale(1.5, 1.5);
 
     core.process();
-    delete fpsCounter;
     delete playerIdle1;
 }

@@ -28,6 +28,8 @@ set(MAIN_SRC
 set(OBJECTS_SRC
 	${src_dir}/${obj_dir}/fpsCounter.cpp
 	${inc_dir}/${obj_dir}/fpsCounter.h
+	${src_dir}/${obj_dir}/debugInformer.cpp
+	${inc_dir}/${obj_dir}/debugInformer.h
 )
 message(NOTICE "${MAIN_SRC}")
 

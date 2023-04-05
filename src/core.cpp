@@ -7,6 +7,8 @@
 #include "core.h"
 #include "text.h"
 
+#include "objects/debugInformer.h"
+
 Core::Core() 
     : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0) {}
 
@@ -21,11 +23,13 @@ void Core::process() {
     m_window = &window;
 
     sf::Clock deltaClock;
-    sf::Clock fpsUpdateTimer;
+    
 
     /// TODO: вынести
     
-    
+    DebugInformer* debugInformer = new DebugInformer();
+    registerObject(debugInformer);
+
     /// ??
     
     updateScale();
@@ -43,6 +47,7 @@ void Core::process() {
         
         // TODO: вынести
         m_fps = 1 / deltaTime.asSeconds();
+        debugInformer->setFPS(m_fps);
         // if (fpsUpdateTimer.getElapsedTime().asSeconds() >= 0.5) {
         //     fpsCounter->setString("FPS: " + std::to_string((int8_t) fps));
         //     fpsCounter->setFillColor(sf::Color::White);
@@ -61,6 +66,8 @@ void Core::process() {
 
         window.display();
     }
+
+    delete debugInformer;
 }
 
 void Core::handleEvent(sf::Event event) {

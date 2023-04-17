@@ -10,6 +10,8 @@
 
 #include "actor.h"
 #include "object.h"
+#include "player.h"
+//#include "tile.h"
 
 class Core {
  public:
@@ -29,6 +31,7 @@ class Core {
     void close();
     sf::RenderWindow* m_window;
     std::vector<Object*> m_objects;
+    //std::vector<Tile*> m_tiles;
     // std::vector<Object*> m_actors;
     // std::vector<Object*> m_texts;
     sf::Vector2f m_scale;

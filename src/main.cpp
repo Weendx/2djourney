@@ -3,7 +3,7 @@
 #include "core.h"
 #include "player.h"
 #include "text.h"
-
+#include "actor.h"
 #include "objects/fpsCounter.h"
 
 // marks:
@@ -15,8 +15,10 @@ int main(int argc, char* argv[]) {
     sf::Texture playerSheet;
     if (!playerSheet.loadFromFile("resources/drawable/playerSheet.png"))
         throw std::runtime_error("Can't load player sprites");
-    Player* playerIdle1 = new Player(playerSheet, sf::IntRect(0, 0, 50, 37));
+    Player* playerIdle1 = new Player(playerSheet, sf::IntRect(0, 0, 50, 45));
     core.registerObject(playerIdle1);
+    
+
 
     sf::Font defaultFont;
     if (!defaultFont.loadFromFile("resources/fonts/default.ttf"))

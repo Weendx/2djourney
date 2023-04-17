@@ -18,7 +18,8 @@ void Core::close() {
 }
 
 void Core::process() {
-    sf::RenderWindow window(sf::VideoMode(856, 482), "2djourney");
+
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "2djourney");
     window.setVerticalSyncEnabled(true);
     m_window = &window;
 
@@ -53,6 +54,10 @@ void Core::process() {
         //     fpsCounter->setFillColor(sf::Color::White);
         //     fpsUpdateTimer.restart();
         // }
+
+        
+
+
 
         window.clear();
 

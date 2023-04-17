@@ -7,11 +7,19 @@
 class Player: public Actor {
  public:
     Player(const sf::Texture& texture, const sf::IntRect& rectangle);
-    void move();
-    
+    void movement(const float& milliseconds);
+    //void physicsParameters();
+    //void physics(const float& milliseconds);
     void onUpdate(const sf::Time &deltaTime) override;
     void handleEvent(sf::Event &event) override;
+    void screenCollision(const unsigned int screenWidth, const unsigned int screenHeight);
+    //sf::FloatRect getBounds();
+    //sf::FloatRect getNextPosition();
  private:
-    sf::Vector2f m_deltaPos;
-    float m_speed;
+    sf::Vector2f velocity;
+    //float velocityMax;
+    //float acceleration;
+    //float gravity;
+
+    
 };

@@ -10,7 +10,12 @@
 #include "objects/debugInformer.h"
 
 Core::Core() 
-    : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0) {}
+    : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0),
+        m_debugInformer(new DebugInformer()) {}
+
+Core::~Core() {
+    delete m_debugInformer;
+}
 
 void Core::close() {
     m_window->close();
@@ -18,20 +23,11 @@ void Core::close() {
 }
 
 void Core::process() {
-
     sf::RenderWindow window(sf::VideoMode(1280, 720), "2djourney");
     window.setVerticalSyncEnabled(true);
     m_window = &window;
 
     sf::Clock deltaClock;
-    
-
-    /// TODO: вынести
-    
-    DebugInformer* debugInformer = new DebugInformer();
-    registerObject(debugInformer);
-
-    /// ??
     
     updateScale();
     
@@ -39,25 +35,14 @@ void Core::process() {
         sf::Time deltaTime = deltaClock.restart();
         sf::Event event;
 
-
         while (window.pollEvent(event)) {
             this->handleEvent(event);
             for (auto e : m_objects)
                 e->handleEvent(event);
         }
         
-        // TODO: вынести
         m_fps = 1 / deltaTime.asSeconds();
-        debugInformer->setFPS(m_fps);
-        // if (fpsUpdateTimer.getElapsedTime().asSeconds() >= 0.5) {
-        //     fpsCounter->setString("FPS: " + std::to_string((int8_t) fps));
-        //     fpsCounter->setFillColor(sf::Color::White);
-        //     fpsUpdateTimer.restart();
-        // }
-
-        
-
-
+        m_debugInformer->setFPS(m_fps);
 
         window.clear();
 
@@ -65,14 +50,9 @@ void Core::process() {
             e->onUpdate(deltaTime);
             window.draw(*e);
         }
-        //
-        // for (auto e : m_texts)
-        //     window.draw(*e);
 
         window.display();
     }
-
-    delete debugInformer;
 }
 
 void Core::handleEvent(sf::Event event) {
@@ -83,10 +63,6 @@ void Core::handleEvent(sf::Event event) {
             this->close(); 
     }
 }
-
-// void Core::registerObject(Actor* actor) {
-//     m_actors.push_back(actor);    
-// }
 
 void Core::registerObject(Object* object) {
     m_objects.push_back(object);
@@ -106,6 +82,4 @@ void Core::setScale(const float &factorX, const float &factorY) {
 void Core::updateScale() {
     for (auto e : m_objects) 
         e->adjustScale(m_scale);
-    // for (auto e : m_texts)
-    //     e->adjustScale(m_scale);
 }

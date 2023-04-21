@@ -1,4 +1,4 @@
-#include "player.h"
+#include "objects/player.h"
 #include "SFML/System/Vector2.hpp"
 
 Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle)
@@ -19,16 +19,16 @@ void Player::movement(const float& milliseconds) {
     }
 }
 
-//void Player::physicsParameters() {
+// void Player::physicsParameters() {
 //    this->velocityMax = 10.0;
 //    
 //    this->gravity = 2.0;
-//}
+// }
 //
-//void Player::physics(const float& milliseconds) {
+// void Player::physics(const float& milliseconds) {
 //    //gravity
 //    this->velocity.y += 1.0 * this->gravity;
-//}
+// }
 
 void Player::onUpdate(const sf::Time &deltaTime) {
     screenCollision(1280, 720);
@@ -36,30 +36,33 @@ void Player::onUpdate(const sf::Time &deltaTime) {
     /*physics(deltaTime.asMilliseconds());*/
 }
 
-void Player::handleEvent(sf::Event &event) {
+void Player::handleEvent(const sf::Event &event) {}
 
-}
-
-void Player::screenCollision(const unsigned int screenWidth, const unsigned int screenHeight)
-{
-    //left
+void Player::screenCollision(const unsigned int screenWidth, 
+        const unsigned int screenHeight) {
+    // left
     if (this->getPosition().x < 0.0)
         this->setPosition(0.0, this->getPosition().y);
-    //right
+
+    // right
     if (this->getPosition().x + this->getGlobalBounds().width > screenWidth)
-        this->setPosition(screenWidth - this->getGlobalBounds().width, this->getPosition().y);
-    //top
+        this->setPosition(screenWidth - this->getGlobalBounds().width, 
+                                                    this->getPosition().y);
+
+    // top
     if (this->getPosition().y < 0.0)
         this->setPosition(this->getPosition().x, 0.0);
-    //bottom
+
+    // bottom
     if (this->getPosition().y + this->getGlobalBounds().height > screenHeight)
-        this->setPosition(this->getPosition().x, screenHeight - this->getGlobalBounds().height);
+        this->setPosition(this->getPosition().x, 
+                            screenHeight - this->getGlobalBounds().height);
 }
 
-//sf::FloatRect Player::getBounds() {
+// sf::FloatRect Player::getBounds() {
 //    return this->getGlobalBounds();
-//}
+// }
 //
-//sf::FloatRect Player::getNextPosition() {
+// sf::FloatRect Player::getNextPosition() {
 //    return this->getBounds().left + velocity;
-//}
+// }

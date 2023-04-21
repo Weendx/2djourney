@@ -21,8 +21,6 @@ set(MAIN_SRC
 	${inc_dir}/actor.h
     ${src_dir}/text.cpp
 	${inc_dir}/text.h
-    ${src_dir}/player.cpp
-	${inc_dir}/player.h
 )
 
 set(OBJECTS_SRC
@@ -30,6 +28,8 @@ set(OBJECTS_SRC
 	${inc_dir}/${obj_dir}/fpsCounter.h
 	${src_dir}/${obj_dir}/debugInformer.cpp
 	${inc_dir}/${obj_dir}/debugInformer.h
+    ${src_dir}/${obj_dir}/player.cpp
+	${inc_dir}/${obj_dir}/player.h
 )
 message(NOTICE "${MAIN_SRC}")
 

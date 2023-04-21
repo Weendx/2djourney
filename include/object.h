@@ -14,13 +14,13 @@
 
 class Object: public sf::Drawable {
  public:
-    Object() {};
-    ~Object() {};
+    Object() {}
+    ~Object() {}
     void setName(const std::string &name) { m_name = name; }
     virtual void adjustScale(const sf::Vector2f &factors) = 0;
     virtual operator std::string() const = 0;
     virtual void onUpdate(const sf::Time &deltaTime) = 0;
-    virtual void handleEvent(sf::Event &event) = 0;
+    virtual void handleEvent(const sf::Event &event) = 0;
  protected:
     std::string m_name;
 };

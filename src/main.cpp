@@ -1,45 +1,29 @@
+#include <cstdint>
 #include <iostream>
-#include <stdexcept>
-#include <SFML/Graphics.hpp>
+#include "core.h"
+#include "objects/player.h"
+#include "text.h"
+#include "actor.h"
+#include "objects/fpsCounter.h"
 
+// marks:
+// https://itecnote.com/tecnote/c-shapes-proportionally-resize-with-window-in-sfml-2-x/
 
 int main(int argc, char* argv[]) {
-    sf::RenderWindow window(sf::VideoMode(856, 482), "Test run");
-    window.setVerticalSyncEnabled(true);
+    Core core;
+    
+    sf::Texture playerSheet;
+    if (!playerSheet.loadFromFile("resources/drawable/playerSheet.png"))
+        throw std::runtime_error("Can't load player sprites");
+    Player* playerIdle1 = new Player(playerSheet, sf::IntRect(0, 0, 50, 45));
+    core.registerObject(playerIdle1);
     
     sf::Font defaultFont;
-    if (!defaultFont.loadFromFile("src/resources/fonts/default.ttf"))
+    if (!defaultFont.loadFromFile("resources/fonts/default.ttf"))
         throw std::runtime_error("Can't load default font");
 
-    float fps;
-    // sf::Clock generalClock; // for global elapsed time
-    sf::Clock deltaClock; // for delta time
-    sf::Clock fpsUpdateTimer;
-    sf::Text fpsCounter("FPS: 0", defaultFont, 15);
+    core.setScale(1.5, 1.5);
 
-    sf::CircleShape shape(100.0);
-    shape.setFillColor(sf::Color::Red);
-
-    while (window.isOpen()) {
-        float deltaTime = deltaClock.restart().asSeconds();
-        
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        fps = 1 / deltaTime;
-        if (fpsUpdateTimer.getElapsedTime().asSeconds() >= 0.5) {
-            fpsCounter.setString("FPS: " + std::to_string((short) fps));
-            fpsCounter.setFillColor(sf::Color::White);
-            fpsUpdateTimer.restart();
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.draw(fpsCounter);
-        window.display();
-    }
-    return 0;
+    core.process();
+    delete playerIdle1;
 }

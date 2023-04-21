@@ -7,18 +7,73 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
+set(src_dir src)
+set(obj_dir objects)
+set(inc_dir "include")
 
-add_executable(2djourney src/main.cpp)
+set(MAIN_SRC
+    ${src_dir}/main.cpp
+    ${src_dir}/core.cpp
+	${inc_dir}/core.h
+    ${src_dir}/object.cpp
+	${inc_dir}/object.h
+    ${src_dir}/actor.cpp
+	${inc_dir}/actor.h
+    ${src_dir}/text.cpp
+	${inc_dir}/text.h
+)
 
+set(OBJECTS_SRC
+	${src_dir}/${obj_dir}/fpsCounter.cpp
+	${inc_dir}/${obj_dir}/fpsCounter.h
+	${src_dir}/${obj_dir}/debugInformer.cpp
+	${inc_dir}/${obj_dir}/debugInformer.h
+    ${src_dir}/${obj_dir}/player.cpp
+	${inc_dir}/${obj_dir}/player.h
+)
+message(NOTICE "${MAIN_SRC}")
+
+add_executable(${PROJECT_NAME} ${MAIN_SRC} ${OBJECTS_SRC})
+
+target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 
-target_link_libraries(2djourney PRIVATE sfml-graphics)
-target_compile_features(2djourney PRIVATE cxx_std_17)
+target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 if (WIN32 AND BUILD_SHARED_LIBS)
-    add_custom_command(TARGET 2djourney POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:2djourney> $<TARGET_FILE_DIR:2djourney> COMMAND_EXPAND_LISTS)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}> COMMAND_EXPAND_LISTS)
 endif()
 
-install(TARGETS 2djourney)
 
-#message(NOTICE "dir loc: ${CMAKE_BINARY_DIR}")
+
+if (WIN32)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/bin/Debug")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
+	
+	## Add files into the solution explorer
+	set_property(GLOBAL	PROPERTY USE_FOLDERS ON)
+	function(groupFiles prefix sources)
+		foreach(FILE ${sources}) 
+			# Group into "Source Files" and "Header Files"
+			if ("${FILE}" MATCHES ".*\\.c")
+			   set(GROUP "${prefix}Source Files")
+			elseif ("${FILE}" MATCHES ".*\\.cpp")
+			   set(GROUP "${prefix}Source Files")
+			elseif("${FILE}" MATCHES ".*\\.h")
+			   set(GROUP "${prefix}Header Files")
+			elseif("${FILE}" MATCHES ".*\\.hpp")
+			   set(GROUP "${prefix}Header Files")
+			endif()
+			message(NOTICE "Found: [${GROUP}] :: ${FILE}")
+			source_group("${GROUP}" FILES "${FILE}")
+		endforeach()
+	endfunction()
+	groupFiles("Main " "${MAIN_SRC}" )
+	groupFiles("Game objects " "${OBJECTS_SRC}")
+endif()
+
+install(TARGETS ${PROJECT_NAME})

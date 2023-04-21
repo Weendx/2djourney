@@ -1,10 +1,9 @@
 build/
-<<<<<<< HEAD
 .vs/
+.cache/
 out/
 *.lnk
-=======
->>>>>>> e9c6fa0dc35d323288e1944ea9fdc77ed107331d
+compile_commands.json
 
 # Prerequisites
 *.d

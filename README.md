@@ -2,6 +2,7 @@
 ![Relative date](https://img.shields.io/date/1683601200?style=plastic&logo=aseprite&logoColor=f09d13)
 
 [Инструкция по работе с инструментами разработки](manual.md)
+
 Придерживаемся данного CodeStyle: [[Link]](https://lefticus.gitbooks.io/cpp-best-practices/content/03-Style.html)
 
 ## Gameplay

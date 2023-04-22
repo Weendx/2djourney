@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include "SFML/Graphics/Rect.hpp"
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/Texture.hpp"
@@ -31,7 +32,7 @@ std::string tileTypeToString(const TileType& type);
 
 class Tile : public Object, public sf::Sprite {
  public:
-    Tile(const TileType& type);
+    explicit Tile(const TileType& type);
     virtual ~Tile();
     void adjustScale(const sf::Vector2f &factors) override;
     void onUpdate(const sf::Time &deltaTime) override {}

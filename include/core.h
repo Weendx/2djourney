@@ -23,11 +23,10 @@ class Core {
     void render();
 
     void registerObject(Object* object);
-    void setScale(const sf::Vector2f &newScale);
-    void setScale(const float &factorX, const float &factorY);
     void updateScale();
 
     float getFPS() const { return m_fps; }
+
  private:
     void close();
     sf::RenderWindow* m_window;
@@ -35,7 +34,11 @@ class Core {
     DebugInformer* m_debugInformer;
     std::vector<Object*> m_objects;
     sf::Vector2f m_scale;
-    float m_fps;
+    sf::Vector2f m_screenSize;
+    float m_fps; 
+
+    void setScale(const sf::Vector2f &newScale);
+    void setScale(const float &factorX, const float &factorY);
 };
 
 #endif  // CORE_H

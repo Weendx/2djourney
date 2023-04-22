@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <stdexcept>
 #include <string>
 #include "objects/tile.h"
@@ -30,13 +31,13 @@ void Tile::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 void Tile::loadTexture() {
     if (m_tileSheet) return;
     m_tileSheet = new sf::Texture();
-    if(!m_tileSheet->loadFromFile("resources/drawable/tileSheet.png"))
+    if (!m_tileSheet->loadFromFile("resources/drawable/tileSheet.png"))
         throw std::runtime_error("Can't load tileSheet.png");
 }
 
 
 const sf::IntRect Tile::getTileRect(const TileType& type) {
-    short w = 24, h = 24;
+    int8_t w = 24, h = 24;
     switch (type) {
         case GrassBegin:
             return sf::IntRect(0, 0, w, h);
@@ -132,7 +133,6 @@ const sf::IntRect Tile::getTileRect(const TileType& type) {
             return sf::IntRect(24, 24, w, h);
         case Empty:
             return sf::IntRect(48, 24, w, h);
-
     }
     throw std::invalid_argument("Invalid tile type");
 }

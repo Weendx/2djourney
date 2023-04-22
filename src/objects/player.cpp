@@ -4,7 +4,7 @@
 Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle)
                         : Actor(texture, rectangle), m_velocity(0.35, 0.35) { 
     setName("Player"); 
-    setScale(1.5, 1.5);
+    setScale(2.2, 2.2);
 }
 
 void Player::movement(const float& milliseconds) {

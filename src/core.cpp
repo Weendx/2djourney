@@ -11,7 +11,11 @@
 
 Core::Core() 
     : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0),
-        m_debugInformer(new DebugInformer()), m_gameMap(new Map()) {}
+        m_debugInformer(new DebugInformer()), m_gameMap(new Map()),
+                                            m_screenSize(1280, 720) {
+    m_gameMap->setBottom(m_screenSize.y);
+    m_gameMap->createTiles();
+}
 
 Core::~Core() {
     delete m_debugInformer;
@@ -23,11 +27,10 @@ void Core::close() {
 }
 
 void Core::process() {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "2djourney");
+    sf::RenderWindow window(
+            sf::VideoMode(m_screenSize.x, m_screenSize.y), "2djourney");
     window.setVerticalSyncEnabled(true);
     m_window = &window;
-
-    m_gameMap->setBottom(720);
 
     sf::Clock deltaClock;
     

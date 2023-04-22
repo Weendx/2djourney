@@ -2,8 +2,11 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include "SFML/System/Vector2.hpp"
 #include "object.h"
 #include "objects/tile.h"
+
+using TilesLengthArr = std::vector<std::array<float, 2>>;
 
 struct LayerData {
     uint16_t tilesCount = 0;
@@ -12,7 +15,8 @@ struct LayerData {
     float startY = 0;
     float endX = 0;
     float endY = 0;
-    std::vector<std::array<float, 2>> tilesLength;  // [tileWidth, repeat]
+    float tilesHeight = 0;
+    TilesLengthArr tilesLength;  // [tileWidth, repeat]
 };
 
 class Map : public Object {
@@ -26,6 +30,7 @@ class Map : public Object {
     operator std::string() const override { return "Map"; }
     void setBottom(const int& bottom) { m_bottom = bottom; }
     void createTiles();
+    TileType getTileTypeAt(const sf::Vector2f& coords);
  private:
     std::vector<std::string> m_currentMapLayout;
     std::vector< std::vector<Tile*> > m_layers;
@@ -33,6 +38,7 @@ class Map : public Object {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void fillMap();
     void deleteTiles();
+    float getTileWidth(const TilesLengthArr& tilesLength, const std::size_t& tileId) const;
     int m_bottom;
     sf::Vector2f m_scale {1.56, 1.56};
 };

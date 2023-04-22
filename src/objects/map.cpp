@@ -1,3 +1,4 @@
+#include <iostream>
 #include <stdexcept>
 #include "SFML/Graphics/Rect.hpp"
 #include "objects/map.h"
@@ -24,13 +25,15 @@ void Map::adjustScale(const sf::Vector2f &factors) {
 }
 
 void Map::fillMap() {
-    m_currentMapLayout.push_back("UYZYZYZYZYZYZYZYZYZX");
-    m_currentMapLayout.push_back("T111111111111111111W");
-    m_currentMapLayout.push_back("S111111111111111111V");
-    m_currentMapLayout.push_back("T111111111111111111W");
-    m_currentMapLayout.push_back("S111111111111111111V");
-    m_currentMapLayout.push_back("T11111111PCBCK11111W");
-    m_currentMapLayout.push_back("ABCBCBCBNO000LMBCBCD");
+    m_currentMapLayout.push_back("0");
+    m_currentMapLayout.push_back("0");
+    m_currentMapLayout.push_back("0UYZYZYZYZYZYZYZYZYZX");
+    m_currentMapLayout.push_back("0T111111111111111111W");
+    m_currentMapLayout.push_back("0S111111111111111111V");
+    m_currentMapLayout.push_back("0T111111111111111111W");
+    m_currentMapLayout.push_back("0S111111111111111111V");
+    m_currentMapLayout.push_back("0T11111111PCBCK11111W");
+    m_currentMapLayout.push_back("0ABCBCBCBNO000LMBCBCD");
 }
 
 void Map::deleteTiles() {
@@ -53,6 +56,8 @@ void Map::createTiles() {
         std::vector<Tile*> layerTiles;
         float layerLength = 0;
         
+        startY -= tileHeight;
+        
         for (char tileName : layer) {
             Tile* tile = new Tile( (TileType)tileName );
             tile->adjustScale(m_scale);
@@ -69,7 +74,7 @@ void Map::createTiles() {
             
             // Сохранение ширины тайлов
             if (!layerData.tilesLength.empty()) {
-                auto last = layerData.tilesLength.back();
+                std::array<float, 2>& last = layerData.tilesLength.back();
                 if (last[0] == tileBounds.width) {
                     ++last[1];
                 } else {
@@ -89,15 +94,45 @@ void Map::createTiles() {
         layerData.id = layerId;
         layerData.startX = startX;
         layerData.startY = startY;
-        startY -= tileHeight;
         layerData.endX = layerLength;
-        layerData.endY = startY;
+        layerData.endY = startY + tileHeight;
+        layerData.tilesHeight = tileHeight;
         m_layersData.push_back(layerData);
         m_layers.push_back(layerTiles);
     }
 }
 
+float Map::getTileWidth(const TilesLengthArr& tilesLength, 
+                                    const std::size_t& tileId) const {
+    for (auto part : tilesLength) {
+        if ( (tileId + 1) - part[1] <= 0 ) {
+            return part[0];  // //
+        }
+    }
+    throw std::logic_error("Can't find the tile width");
+}
+
+TileType Map::getTileTypeAt(const sf::Vector2f& coords) {
+    for (int i = m_layers.size() - 1; i >= 0; --i ) {
+        if (!(coords.y >= m_layersData[i].startY && 
+                        coords.y <= m_layersData[i].endY)) {
+            continue;
+        }
+
+        float marginX = 0;
+        for (std::size_t j = 0; j < m_layersData[i].tilesCount; ++j) {
+            float width = getTileWidth(m_layersData[i].tilesLength, j);
+            if (coords.x >= marginX && coords.x <= (marginX + width)) {
+                return m_layers[i][j]->getType();
+            }
+            marginX += width;
+        }
+    }
+    return TileType::Empty;
+}
+
 void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    sf::Vector2f hu(75, 496);
     for (auto layer : m_layers) {
         for (auto tile : layer) {
             target.draw((sf::Sprite) *tile, states);

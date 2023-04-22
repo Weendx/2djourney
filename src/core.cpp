@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -5,6 +6,7 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include "core.h"
+#include "objects/tile.h"
 #include "text.h"
 
 #include "objects/debugInformer.h"
@@ -69,6 +71,12 @@ void Core::handleEvent(sf::Event event) {
     if (event.type == sf::Event::EventType::KeyPressed) {
         if (event.key.code == sf::Keyboard::Q)
             this->close(); 
+    }
+    if (event.type == sf::Event::EventType::MouseButtonReleased) {
+        sf::Vector2f mouseCoords(event.mouseButton.x, event.mouseButton.y);
+        std::cout << "Tile type at (" << event.mouseButton.x << 
+            ", " << event.mouseButton.y << "): " << //std::endl;
+                tileTypeToString(m_gameMap->getTileTypeAt(mouseCoords)) << std::endl;
     }
 }
 

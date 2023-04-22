@@ -2,20 +2,23 @@
 #include "SFML/System/Vector2.hpp"
 
 Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle)
-    : Actor(texture, rectangle) {}
+                        : Actor(texture, rectangle), m_velocity(0.35, 0.35) { 
+    setName("Player"); 
+    setScale(1.5, 1.5);
+}
 
 void Player::movement(const float& milliseconds) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-        this->move(-0.9 * milliseconds, 0.0);
+        this->move(-m_velocity.x * milliseconds, 0.0);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-        this->move(0.9 * milliseconds, 0.0);
+        this->move(m_velocity.x * milliseconds, 0.0);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-        this->move(0.0, -0.9 * milliseconds);
+        this->move(0.0, -m_velocity.y * milliseconds);
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-        this->move(0.0, 0.9 * milliseconds);
+        this->move(0.0, m_velocity.y * milliseconds);
     }
 }
 

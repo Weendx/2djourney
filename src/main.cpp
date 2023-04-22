@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     if (!defaultFont.loadFromFile("resources/fonts/default.ttf"))
         throw std::runtime_error("Can't load default font");
 
-    core.setScale(1.5, 1.5);
+    core.setScale(1.3, 1.3);
 
     core.process();
     delete playerIdle1;

@@ -11,7 +11,7 @@ class DebugInformer : public Object {
     ~DebugInformer();
     void onUpdate(const sf::Time& deltaTime) override;
     void handleEvent(const sf::Event& event) override;
-    void adjustScale(const sf::Vector2f &factors) override {}
+    void adjustScale(const sf::Vector2f &factors) override;
     operator std::string() const override { return "DebugInformer"; }
     void setFPS(const float& fps);
  private:

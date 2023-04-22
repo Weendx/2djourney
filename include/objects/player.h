@@ -17,7 +17,7 @@ class Player: public Actor {
     // sf::FloatRect getBounds();
     // sf::FloatRect getNextPosition();
  private:
-    sf::Vector2f velocity;
+    sf::Vector2f m_velocity;
     // float velocityMax;
     // float acceleration;
     // float gravity;

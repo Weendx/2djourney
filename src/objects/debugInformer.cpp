@@ -21,6 +21,10 @@ void DebugInformer::onUpdate(const sf::Time& deltaTime) {
 
 void DebugInformer::handleEvent(const sf::Event& event) {}
 
+void DebugInformer::adjustScale(const sf::Vector2f &factors) {
+    m_fpsCounter->adjustScale(factors);
+}
+
 void DebugInformer::draw(sf::RenderTarget& target, 
         sf::RenderStates states) const {
     target.draw((sf::Text) *m_fpsCounter, states);

@@ -30,6 +30,10 @@ set(OBJECTS_SRC
 	${inc_dir}/${obj_dir}/debugInformer.h
     ${src_dir}/${obj_dir}/player.cpp
 	${inc_dir}/${obj_dir}/player.h
+	${src_dir}/${obj_dir}/tile.cpp
+	${inc_dir}/${obj_dir}/tile.h
+	${src_dir}/${obj_dir}/map.cpp
+	${inc_dir}/${obj_dir}/map.h
 )
 message(NOTICE "${MAIN_SRC}")
 

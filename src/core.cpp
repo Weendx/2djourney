@@ -11,7 +11,7 @@
 
 Core::Core() 
     : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0),
-        m_debugInformer(new DebugInformer()) {}
+        m_debugInformer(new DebugInformer()), m_gameMap(new Map()) {}
 
 Core::~Core() {
     delete m_debugInformer;
@@ -27,9 +27,9 @@ void Core::process() {
     window.setVerticalSyncEnabled(true);
     m_window = &window;
 
+    m_gameMap->setBottom(720);
+
     sf::Clock deltaClock;
-    
-    updateScale();
     
     while ( window.isOpen() ) {
         sf::Time deltaTime = deltaClock.restart();
@@ -45,6 +45,11 @@ void Core::process() {
         m_debugInformer->setFPS(m_fps);
 
         window.clear();
+
+        window.draw(*m_gameMap);
+
+        m_debugInformer->onUpdate(deltaTime);
+        window.draw(*m_debugInformer);
 
         for (auto e : m_objects) {
             e->onUpdate(deltaTime);
@@ -80,6 +85,8 @@ void Core::setScale(const float &factorX, const float &factorY) {
 }
 
 void Core::updateScale() {
+    m_gameMap->adjustScale(m_scale);
     for (auto e : m_objects) 
         e->adjustScale(m_scale);
+    m_debugInformer->adjustScale(m_scale);
 }

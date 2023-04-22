@@ -12,6 +12,7 @@
 #include "object.h"
 #include "objects/debugInformer.h"
 #include "objects/player.h"
+#include "objects/map.h"
 
 class Core {
  public:
@@ -30,6 +31,7 @@ class Core {
  private:
     void close();
     sf::RenderWindow* m_window;
+    Map* m_gameMap;
     DebugInformer* m_debugInformer;
     std::vector<Object*> m_objects;
     sf::Vector2f m_scale;

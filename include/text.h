@@ -18,6 +18,9 @@ class Text: virtual public Object, public sf::Text {
 
     void adjustScale(const sf::Vector2f &factors) override;
     operator std::string() const override; 
+    void onUpdate(const sf::Time &deltaTime) override;
+    void handleEvent(const sf::Event &event) override;
+
  private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };

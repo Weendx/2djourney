@@ -1,4 +1,3 @@
-#include <iostream>
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -74,9 +73,8 @@ void Core::handleEvent(sf::Event event) {
     }
     if (event.type == sf::Event::EventType::MouseButtonReleased) {
         sf::Vector2f mouseCoords(event.mouseButton.x, event.mouseButton.y);
-        std::cout << "Tile type at (" << event.mouseButton.x << 
-            ", " << event.mouseButton.y << "): " << //std::endl;
-                tileTypeToString(m_gameMap->getTileTypeAt(mouseCoords)) << std::endl;
+        auto ttype = tileTypeToString(m_gameMap->getTileTypeAt(mouseCoords));
+        m_debugInformer->updateDebugString("LastClickTileType", ttype);
     }
 }
 

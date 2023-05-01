@@ -17,6 +17,7 @@ int main(int argc, char* argv[]) {
         throw std::runtime_error("Can't load player sprites");
     Player* playerIdle1 = new Player(playerSheet, sf::IntRect(0, 0, 50, 45));
     core.registerObject(playerIdle1);
+    playerIdle1->setCoreInstance(&core);
     
     sf::Font defaultFont;
     if (!defaultFont.loadFromFile("resources/fonts/default.ttf"))

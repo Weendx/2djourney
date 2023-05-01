@@ -1,3 +1,4 @@
+#pragma once
 #include <array>
 #include <cstdint>
 #include <vector>
@@ -30,7 +31,7 @@ class Map : public Object {
     operator std::string() const override { return "Map"; }
     void setBottom(const int& bottom) { m_bottom = bottom; }
     void createTiles();
-    TileType getTileTypeAt(const sf::Vector2f& coords);
+    TileType getTileTypeAt(const sf::Vector2f& coords) const;
  private:
     std::vector<std::string> m_currentMapLayout;
     std::vector< std::vector<Tile*> > m_layers;
@@ -38,7 +39,8 @@ class Map : public Object {
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void fillMap();
     void deleteTiles();
-    float getTileWidth(const TilesLengthArr& tilesLength, const std::size_t& tileId) const;
+    float getTileWidth(const TilesLengthArr& tilesLength, 
+                                    const std::size_t& tileId) const;
     int m_bottom;
     sf::Vector2f m_scale {1.56, 1.56};
 };

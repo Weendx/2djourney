@@ -1,25 +1,67 @@
-#include "objects/player.h"
+#include "SFML/Graphics/Color.hpp"
 #include "SFML/System/Vector2.hpp"
+#include "SFML/Graphics/RectangleShape.hpp"
+#include "core.h"
+#include "objects/player.h"
+#include "objects/tile.h"
 
 Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle)
                         : Actor(texture, rectangle), m_velocity(0.35, 0.35) { 
     setName("Player"); 
     setScale(2.2, 2.2);
+
+    sf::Vector2f playerSize = this->getGlobalBounds().getSize();
+    // this->setOrigin(playerSize.x / 2, playerSize.y / 2);
+
+    debugRect = new sf::RectangleShape;
+    debugRect->setFillColor(sf::Color::Transparent);
+    debugRect->setOutlineColor(sf::Color::White);
+    debugRect->setOutlineThickness(1);
+    debugRect->setSize({5, 5});
+
+    debugRect2 = new sf::RectangleShape;
+    debugRect2->setFillColor(sf::Color::Transparent);
+    debugRect2->setOutlineColor(sf::Color::Red);
+    debugRect2->setOutlineThickness(1);
+    debugRect2->setSize(playerSize);
+    // debugRect2->setOrigin(playerSize.x / 2, playerSize.y / 2);
+}
+
+Player::~Player() {
+    delete debugRect;
 }
 
 void Player::movement(const float& milliseconds) {
+    sf::Vector2f newPos = getPosition();
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-        this->move(-m_velocity.x * milliseconds, 0.0);
+        newPos.x += -m_velocity.x * milliseconds;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-        this->move(m_velocity.x * milliseconds, 0.0);
+        newPos.x += m_velocity.x * milliseconds;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-        this->move(0.0, -m_velocity.y * milliseconds);
+        newPos.y += -m_velocity.y * milliseconds;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-        this->move(0.0, m_velocity.y * milliseconds);
+        newPos.y += m_velocity.y * milliseconds;
     }
+    if (m_coreInstance) {
+        sf::Vector2f playerSize = getGlobalBounds().getSize();
+        sf::Vector2f searchPos = newPos + playerSize;
+        searchPos.x -= playerSize.x / 2;
+        debugRect->setPosition(searchPos);
+        auto ttype = tileTypeToString(
+                    m_coreInstance->getMap()->getTileTypeAt(searchPos));
+        m_coreInstance->debug()->updateDebugString("Ground Type", ttype);
+    }
+    setPosition(newPos);
+    debugRect2->setPosition(newPos);
+}
+
+void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+    target.draw((sf::Sprite) *this, states);
+    target.draw(*debugRect, states);
+    target.draw(*debugRect2, states);
 }
 
 // void Player::physicsParameters() {

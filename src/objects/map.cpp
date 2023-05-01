@@ -112,8 +112,8 @@ float Map::getTileWidth(const TilesLengthArr& tilesLength,
     throw std::logic_error("Can't find the tile width");
 }
 
-TileType Map::getTileTypeAt(const sf::Vector2f& coords) {
-    for (int i = m_layers.size() - 1; i >= 0; --i ) {
+TileType Map::getTileTypeAt(const sf::Vector2f& coords) const {
+    for (int i = m_layers.size() - 1; i >= 0; --i) {
         if (!(coords.y >= m_layersData[i].startY && 
                         coords.y <= m_layersData[i].endY)) {
             continue;

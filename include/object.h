@@ -12,6 +12,7 @@
 #include "SFML/System/Time.hpp"
 #include "SFML/Window/Event.hpp"
 
+class Core;
 class Object: public sf::Drawable {
  public:
     Object() {}
@@ -21,8 +22,10 @@ class Object: public sf::Drawable {
     virtual operator std::string() const = 0;
     virtual void onUpdate(const sf::Time &deltaTime) = 0;
     virtual void handleEvent(const sf::Event &event) = 0;
+    void setCoreInstance(Core* core) { m_coreInstance = core; }
  protected:
     std::string m_name;
+    Core* m_coreInstance = nullptr;
 };
 
 #endif  // OBJECT_H

@@ -24,3 +24,6 @@ void Text::adjustScale(const sf::Vector2f &factors) {
 Text::operator std::string() const {
     return "Text []";
 }
+
+void Text::onUpdate(const sf::Time &deltaTime) {}
+void Text::handleEvent(const sf::Event &event) {}

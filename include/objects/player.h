@@ -4,9 +4,14 @@
 #include "SFML/Window/Event.hpp"
 #include "actor.h"
 
+namespace sf {
+class RectangleShape;
+}
+
 class Player: public Actor {
  public:
     Player(const sf::Texture& texture, const sf::IntRect& rectangle);
+    ~Player();
     void movement(const float& milliseconds);
     // void physicsParameters();
     // void physics(const float& milliseconds);
@@ -18,6 +23,9 @@ class Player: public Actor {
     // sf::FloatRect getNextPosition();
  private:
     sf::Vector2f m_velocity;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    sf::RectangleShape* debugRect;
+    sf::RectangleShape* debugRect2;
     // float velocityMax;
     // float acceleration;
     // float gravity;

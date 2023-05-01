@@ -27,6 +27,9 @@ class Core {
 
     float getFPS() const { return m_fps; }
 
+    const Map* getMap() const { return m_gameMap; }
+    DebugInformer* debug() const { return m_debugInformer; }
+
  private:
     void close();
     sf::RenderWindow* m_window;

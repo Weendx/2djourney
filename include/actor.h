@@ -1,5 +1,4 @@
-#ifndef ACTOR_H
-#define ACTOR_H
+#pragma once
 
 #include <string>
 #include <SFML/Graphics/Rect.hpp>
@@ -9,12 +8,12 @@
 class Actor 
     : virtual public Object, public sf::Sprite {
  public:
-    Actor(const sf::Texture& texture, const sf::IntRect& rectangle);
+    Actor(const sf::Texture& texture, const sf::IntRect& rectangle, const bool &hasPhysics = true);
     virtual ~Actor() {} 
     operator std::string() const override;
     void adjustScale(const sf::Vector2f &factors) override;
- private:
+    sf::Vector2f getHitBoxSize();
+private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 };
 
-#endif  // ACTOR_H

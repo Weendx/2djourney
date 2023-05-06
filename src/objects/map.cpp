@@ -25,15 +25,29 @@ void Map::adjustScale(const sf::Vector2f &factors) {
 }
 
 void Map::fillMap() {
-    m_currentMapLayout.push_back("0");
+    /*m_currentMapLayout.push_back("0");
     m_currentMapLayout.push_back("0");
     m_currentMapLayout.push_back("0UYZYZYZYZYZYZYZYZYZX");
     m_currentMapLayout.push_back("0T111111111111111111W");
     m_currentMapLayout.push_back("0S111111111111111111V");
     m_currentMapLayout.push_back("0T111111111111111111W");
     m_currentMapLayout.push_back("0S111111111111111111V");
-    m_currentMapLayout.push_back("0T11111111PCBCK11111W");
-    m_currentMapLayout.push_back("0ABCBCBCBNO000LMBCBCD");
+    m_currentMapLayout.push_back("0T111111111111111111W");
+    m_currentMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCD");*/
+
+    m_currentMapLayout.push_back("0");
+    m_currentMapLayout.push_back("0");
+    m_currentMapLayout.push_back("000000000000000000000");
+    m_currentMapLayout.push_back("000000000000000000000");
+    m_currentMapLayout.push_back("000000000000000000000");
+    m_currentMapLayout.push_back("000000000000000000000");
+    m_currentMapLayout.push_back("000000000000000000000");
+    m_currentMapLayout.push_back("000000000000000000000");
+    m_currentMapLayout.push_back("000000000000111100000");
+    m_currentMapLayout.push_back("000000000000111100000");
+    m_currentMapLayout.push_back("000000000000111100000");
+    m_currentMapLayout.push_back("000000000000111100000");
+
 }
 
 void Map::deleteTiles() {
@@ -89,6 +103,8 @@ void Map::createTiles() {
             layerLength += tileBounds.width;
             ++layerData.tilesCount;
             layerTiles.push_back(tile);
+            if(tile->getType() != TileType::Empty)
+                m_collisionTiles.push_back(tile);
         }
 
         layerData.id = layerId;

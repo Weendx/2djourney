@@ -4,9 +4,10 @@
 #include "core.h"
 #include "objects/player.h"
 #include "objects/tile.h"
+#include <iostream>
 
-Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle)
-                        : Actor(texture, rectangle), m_velocity(0.35, 0.35) { 
+Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle, const Map* gameMap, const std::vector<Tile*> tiles)
+                        : Actor(texture, rectangle), m_velocity(0.35, 0.35), m_gameMap(gameMap), m_tiles(tiles) { 
     setName("Player"); 
     setScale(2.2, 2.2);
 
@@ -22,7 +23,7 @@ Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle)
     debugRect2 = new sf::RectangleShape;
     debugRect2->setFillColor(sf::Color::Transparent);
     debugRect2->setOutlineColor(sf::Color::Red);
-    debugRect2->setOutlineThickness(1);
+    debugRect2->setOutlineThickness(-1);
     debugRect2->setSize(playerSize);
     // debugRect2->setOrigin(playerSize.x / 2, playerSize.y / 2);
 }
@@ -33,17 +34,25 @@ Player::~Player() {
 
 void Player::movement(const float& milliseconds) {
     sf::Vector2f newPos = getPosition();
+    m_velocity.x = m_velocity.y = 0.0;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-        newPos.x += -m_velocity.x * milliseconds;
+        m_velocity.x += -m_moveSpeed * milliseconds;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-        newPos.x += m_velocity.x * milliseconds;
+        m_velocity.x += m_moveSpeed * milliseconds;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-        newPos.y += -m_velocity.y * milliseconds;
+        m_velocity.y += -m_moveSpeed * milliseconds;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-        newPos.y += m_velocity.y * milliseconds;
+        m_velocity.y += m_moveSpeed * milliseconds;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && onGround(720) && !m_isJumping) {
+        m_isJumping = true;
+        m_velocity.y = -100 * (m_velocity.y + 0.1 * milliseconds);
+    }
+    if (sf::Event::KeyReleased) {
+        m_isJumping = false;
     }
     if (m_coreInstance) {
         sf::Vector2f playerSize = getGlobalBounds().getSize();
@@ -64,50 +73,26 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(*debugRect2, states);
 }
 
-// void Player::physicsParameters() {
-//    this->velocityMax = 10.0;
-//    
-//    this->gravity = 2.0;
-// }
-//
-// void Player::physics(const float& milliseconds) {
-//    //gravity
-//    this->velocity.y += 1.0 * this->gravity;
-// }
 
 void Player::onUpdate(const sf::Time &deltaTime) {
-    screenCollision(1280, 720);
     movement(deltaTime.asMilliseconds());
-    /*physics(deltaTime.asMilliseconds());*/
+    this->move(m_velocity);
+
 }
 
 void Player::handleEvent(const sf::Event &event) {}
 
-void Player::screenCollision(const unsigned int screenWidth, 
-        const unsigned int screenHeight) {
-    // left
-    if (this->getPosition().x < 0.0)
-        this->setPosition(0.0, this->getPosition().y);
-
-    // right
-    if (this->getPosition().x + this->getGlobalBounds().width > screenWidth)
-        this->setPosition(screenWidth - this->getGlobalBounds().width, 
-                                                    this->getPosition().y);
-
-    // top
-    if (this->getPosition().y < 0.0)
-        this->setPosition(this->getPosition().x, 0.0);
-
-    // bottom
-    if (this->getPosition().y + this->getGlobalBounds().height > screenHeight)
-        this->setPosition(this->getPosition().x, 
-                            screenHeight - this->getGlobalBounds().height);
+bool Player::onGround(const unsigned int screenHeight) const
+{
+    sf::Vector2f bottomCoords;
+    bottomCoords.x = this->getGlobalBounds().left;
+    bottomCoords.y = this->getGlobalBounds().top + this->getGlobalBounds().height + 10.0;
+    if ((m_gameMap->getTileTypeAt(bottomCoords) != TileType::Empty) || (this->getPosition().y + this->getGlobalBounds().height + 1 > screenHeight)) {
+        std::cout << "on ground" << std::endl;
+        return true;
+    }
+    else {
+        std::cout << "not on ground" << std::endl;
+        return false;
+    }
 }
-
-// sf::FloatRect Player::getBounds() {
-//    return this->getGlobalBounds();
-// }
-//
-// sf::FloatRect Player::getNextPosition() {
-//    return this->getBounds().left + velocity;
-// }

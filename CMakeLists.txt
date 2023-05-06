@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(2djourney LANGUAGES CXX)
 
-include(FetchContent)
-FetchContent_Declare(SFML
-    GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 2.6.x)
-FetchContent_MakeAvailable(SFML)
-
 set(src_dir src)
 set(obj_dir objects)
 set(inc_dir "include")
@@ -35,14 +29,33 @@ set(OBJECTS_SRC
 	${src_dir}/${obj_dir}/map.cpp
 	${inc_dir}/${obj_dir}/map.h
 )
-message(NOTICE "${MAIN_SRC}")
+# message(NOTICE "${MAIN_SRC}")
 
 add_executable(${PROJECT_NAME} ${MAIN_SRC} ${OBJECTS_SRC})
 
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 
+set(SFML_BUILD_AUDIO OFF CACHE BOOL "" FORCE)
+set(SFML_BUILD_NETWORK OFF CACHE BOOL "" FORCE)
+
+set(BOX2D_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
+
+include(FetchContent)
+FetchContent_Declare(SFML
+    GIT_REPOSITORY https://github.com/SFML/SFML.git
+    GIT_TAG 2.6.x)
+FetchContent_Declare(box2d
+	GIT_REPOSITORY https://github.com/erincatto/box2d.git
+	GIT_TAG v2.4.1)
+FetchContent_MakeAvailable(SFML box2d)
+
+
+
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics)
+target_link_libraries(${PROJECT_NAME} PRIVATE box2d)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 if (WIN32 AND BUILD_SHARED_LIBS)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -53,13 +66,13 @@ endif()
 
 if (WIN32)
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/bin/Debug")
+    set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/bin/Debug")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory
                     ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
 	
 	## Add files into the solution explorer
-	set_property(GLOBAL	PROPERTY USE_FOLDERS ON)
+	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	function(groupFiles prefix sources)
 		foreach(FILE ${sources}) 
 			# Group into "Source Files" and "Header Files"

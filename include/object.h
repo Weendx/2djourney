@@ -1,5 +1,4 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#pragma once
 
 #include <string>
 #include <SFML/Graphics/Font.hpp>
@@ -13,6 +12,7 @@
 #include "SFML/Window/Event.hpp"
 
 class Core;
+class b2Body;
 class Object: public sf::Drawable {
  public:
     Object() {}
@@ -23,9 +23,13 @@ class Object: public sf::Drawable {
     virtual void onUpdate(const sf::Time &deltaTime) = 0;
     virtual void handleEvent(const sf::Event &event) = 0;
     void setCoreInstance(Core* core) { m_coreInstance = core; }
+    const bool hasPhysics() const { return m_hasPhysics; }
+    const bool isItDynamic() const { return m_isDynamic; }
+    void setBody(b2Body* body) { m_body = body; }
  protected:
     std::string m_name;
     Core* m_coreInstance = nullptr;
+    b2Body* m_body = nullptr;
+    bool m_hasPhysics;
+    bool m_isDynamic;
 };
-
-#endif  // OBJECT_H

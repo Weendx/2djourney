@@ -3,30 +3,34 @@
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Window/Event.hpp"
 #include "actor.h"
+#include "objects/map.h"
 
 namespace sf {
 class RectangleShape;
 }
 
-class Player: public Actor {
- public:
-    Player(const sf::Texture& texture, const sf::IntRect& rectangle);
+class Player : public Actor {
+public:
+    Player(const sf::Texture& texture, const sf::IntRect& rectangle, const Map* gameMap, const std::vector<Tile*> tiles);
     ~Player();
     void movement(const float& milliseconds);
-    // void physicsParameters();
-    // void physics(const float& milliseconds);
-    void onUpdate(const sf::Time &deltaTime) override;
-    void handleEvent(const sf::Event &event) override;
-    void screenCollision(const unsigned int screenWidth, 
-                            const unsigned int screenHeight);
-    // sf::FloatRect getBounds();
-    // sf::FloatRect getNextPosition();
- private:
+    void onUpdate(const sf::Time& deltaTime) override;
+    void handleEvent(const sf::Event& event) override;
+    bool onGround(const unsigned int screenHeight)const;
+private:
+    const Map* m_gameMap;
+    const std::vector<Tile*> m_tiles;
+
+    //Physics
+    const float m_moveSpeed = 0.3;
     sf::Vector2f m_velocity;
+    const float m_gravitySpeed = 10.0;
+    const float m_accelerationY = 1.0;
+    bool m_isJumping = false;
+    sf::FloatRect m_nextPos;
+    //sf::RectangleShape m_hitbox;
+
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     sf::RectangleShape* debugRect;
     sf::RectangleShape* debugRect2;
-    // float velocityMax;
-    // float acceleration;
-    // float gravity;
 };

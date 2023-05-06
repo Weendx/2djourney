@@ -5,8 +5,11 @@
 #include "actor.h"
 
 
-Actor::Actor(const sf::Texture& texture, const sf::IntRect& rectangle)
-    : sf::Sprite(texture, rectangle) {}
+Actor::Actor(const sf::Texture& texture, const sf::IntRect& rectangle, const bool &hasPhysics)
+    : sf::Sprite(texture, rectangle) {
+    m_hasPhysics = hasPhysics;
+    setOrigin(rectangle.width / 2, rectangle.height / 2);
+}
 
 void Actor::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw((sf::Sprite)*this, states);
@@ -22,4 +25,8 @@ void Actor::adjustScale(const sf::Vector2f &factors) {
 
 Actor::operator std::string() const {
     return "Actor [" + m_name + "]";
+}
+
+sf::Vector2f Actor::getHitBoxSize() {
+    return this->getGlobalBounds().getSize();
 }

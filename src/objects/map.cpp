@@ -34,7 +34,7 @@ void Map::adjustScale(const sf::Vector2f &factors) {
 }
 
 void Map::fillMap() {
-    /*m_currentMapLayout.push_back("0");
+    m_currentMapLayout.push_back("0");
     m_currentMapLayout.push_back("0");
     m_currentMapLayout.push_back("0UYZYZYZYZYZYZYZYZYZX");
     m_currentMapLayout.push_back("0T111111111111111111W");
@@ -42,10 +42,12 @@ void Map::fillMap() {
     m_currentMapLayout.push_back("0T111111111111111111W");
     m_currentMapLayout.push_back("0S111111111111111111V");
     m_currentMapLayout.push_back("0T111111111111111111W");
-    m_currentMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCD");*/
+    m_currentMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCD");
+    for (int i = 0; i < 10; ++i)
+        m_currentMapLayout.push_back("00000000000000000000e");
 
+    /* m_currentMapLayout.push_back("0");
     m_currentMapLayout.push_back("0");
-    m_currentMapLayout.push_back("0");
     m_currentMapLayout.push_back("000000000000000000000");
     m_currentMapLayout.push_back("000000000000000000000");
     m_currentMapLayout.push_back("000000000000000000000");
@@ -55,8 +57,7 @@ void Map::fillMap() {
     m_currentMapLayout.push_back("000000000000111100000");
     m_currentMapLayout.push_back("000000000000111100000");
     m_currentMapLayout.push_back("000000000000111100000");
-    m_currentMapLayout.push_back("000000000000111100000");
-
+    m_currentMapLayout.push_back("000000000000111100000"); */
 }
 
 void Map::deleteTiles() {
@@ -112,25 +113,20 @@ void Map::createTiles() {
             layerLength += tileBounds.width;
             ++layerData.tilesCount;
             layerTiles.push_back(tile);
-            // TODO(): optimize
+
+            // TODO(...): optimize
             if (m_coreInstance && tile->hasCollision()) {
-                b2Vec2 b2TilePos = coordPixelsToWorld(tileBounds.getPosition());
+                b2Vec2 b2TilePos = coordPixelsToWorld(tile->getPosition());
                 b2Vec2 b2TileSize = coordPixelsToWorld(tileBounds.getSize());
+                b2Vec2 center(b2TileSize.x / 2.0, b2TileSize.y / 2.0);
                 
                 b2BodyDef bdef;
-                bdef.position = b2TilePos;
+                bdef.position.Set(b2TilePos.x + center.x, b2TilePos.y + center.y);
                 b2Body* body = m_coreInstance->getWorld()->CreateBody(&bdef);
                 tile->setBody(body);
 
                 b2PolygonShape pshape;
-                b2Vec2 centroid(
-                    b2TilePos.x + b2TileSize.x / 2, 
-                    b2TilePos.y + b2TileSize.y / 2
-                );
-                pshape.SetAsBox(
-                    b2TileSize.x / 2, b2TileSize.y / 2,
-                    centroid, 0
-                );
+                pshape.SetAsBox(center.x, center.y);
 
                 b2FixtureDef fixdef;
                 fixdef.shape = &pshape;

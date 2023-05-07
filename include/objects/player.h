@@ -11,7 +11,8 @@ class RectangleShape;
 
 class Player : public Actor {
 public:
-    Player(const sf::Texture& texture, const sf::IntRect& rectangle);
+    Player(const sf::Texture& texture, const sf::IntRect& rectangle,
+                            const sf::Vector2f& hitboxSizes = sf::Vector2f());
     ~Player();
     void movement(const float& milliseconds);
     void onUpdate(const sf::Time& deltaTime) override;
@@ -19,7 +20,7 @@ public:
     bool onGround(const unsigned int screenHeight)const;
 private:
     const Map* m_gameMap;
-    const std::vector<Tile*> m_tiles;
+    // const std::vector<Tile*> m_tiles;
 
     //Physics
     const float m_moveSpeed = 0.3;

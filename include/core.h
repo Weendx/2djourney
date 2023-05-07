@@ -16,8 +16,7 @@
 #include "box2d/b2_math.h"
 #include "box2d/b2_world.h"
 
-//class b2World;
-//class b2Vec2;
+
 class Core {
  public:
     Core();
@@ -36,13 +35,14 @@ class Core {
     DebugInformer* debug() const { return m_debugInformer; }
     b2World* getWorld() { return &m_world; }
     const b2World* getWorld() const { return &m_world; }  // ?
+
  private:
     void close();
     sf::RenderWindow* m_window;
     Map* m_gameMap;
     std::vector<Tile*> m_collisionTiles;
     DebugInformer* m_debugInformer;
-    //std::vector<Object*> m_objects;
+    // std::vector<Object*> m_objects;
     std::vector<Actor*> m_actors;
 
     sf::Vector2f m_scale;
@@ -53,5 +53,7 @@ class Core {
     void setScale(const float &factorX, const float &factorY);
     b2World m_world;
     b2Vec2 m_gravity{ 0.0, 10.0 };
+
+    uint32 m_b2DebugFlags;
 };
 

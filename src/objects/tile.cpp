@@ -4,12 +4,16 @@
 #include "objects/tile.h"
 
 Tile::Tile(const TileType& type) 
-    : m_type(type), m_isCollide(true), sf::Sprite() {
+    : m_type(type), sf::Sprite() {
     loadTexture();
     if (!m_tileSheet)
         throw std::runtime_error("Tile textures aren't loaded");
     setTexture(*m_tileSheet);
-    setTextureRect(getTileRect(type));
+    auto tileRect = getTileRect(type);
+    setTextureRect(tileRect);
+    // setOrigin(tileRect.width / 2.0, tileRect.height / 2.0);
+
+    m_isCollide = type != TileType::Empty;
 }
 
 Tile::~Tile() {

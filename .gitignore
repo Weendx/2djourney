@@ -4,6 +4,7 @@ build/
 out/
 *.lnk
 compile_commands.json
+settings.ini
 
 # Prerequisites
 *.d

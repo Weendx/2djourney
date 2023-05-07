@@ -8,12 +8,17 @@
 class Actor 
     : virtual public Object, public sf::Sprite {
  public:
-    Actor(const sf::Texture& texture, const sf::IntRect& rectangle, const bool &hasPhysics = true);
+    Actor(const sf::Texture& texture, const sf::IntRect& rectangle, 
+                                        const bool &hasPhysics = true);
+    Actor(const sf::Texture& texture, const sf::IntRect& rectangle, 
+            const sf::Vector2f& hitboxSizes, const bool &hasPhysics = true);
     virtual ~Actor() {} 
     operator std::string() const override;
     void adjustScale(const sf::Vector2f &factors) override;
     sf::Vector2f getHitBoxSize();
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+    void init();
+    sf::Vector2f m_hitboxSizes;
 };
 

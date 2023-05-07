@@ -5,11 +5,15 @@
 #include "objects/player.h"
 #include "objects/tile.h"
 #include <iostream>
+#include <string>
+#include "box2d/b2_body.h"
+#include "utils.h"
 
-Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle)
-                        : Actor(texture, rectangle), m_velocity(0.35, 0.35) { 
+Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle,
+                                                const sf::Vector2f& hitbox)
+        : Actor(texture, rectangle, hitbox), m_velocity(0.35, 0.35) { 
     setName("Player"); 
-    setScale(2.2, 2.2);
+    adjustScale({2.2, 2.2});
 
     sf::Vector2f playerSize = this->getGlobalBounds().getSize();
     // this->setOrigin(playerSize.x / 2, playerSize.y / 2);
@@ -19,13 +23,15 @@ Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle)
     debugRect->setOutlineColor(sf::Color::White);
     debugRect->setOutlineThickness(1);
     debugRect->setSize({5, 5});
+    debugRect->setOrigin({2.5, 2.5});
 
     debugRect2 = new sf::RectangleShape;
     debugRect2->setFillColor(sf::Color::Transparent);
     debugRect2->setOutlineColor(sf::Color::Red);
     debugRect2->setOutlineThickness(-1);
     debugRect2->setSize(playerSize);
-    // debugRect2->setOrigin(playerSize.x / 2, playerSize.y / 2);
+    debugRect2->setOrigin(playerSize.x / 2, playerSize.y / 2);
+    m_isDynamic = true;
 }
 
 Player::~Player() {
@@ -47,17 +53,17 @@ void Player::movement(const float& milliseconds) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
         m_velocity.y += m_moveSpeed * milliseconds;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && onGround(720) && !m_isJumping) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) /* && onGround(720) */ && !m_isJumping) {
         m_isJumping = true;
-        m_velocity.y = -100 * (m_velocity.y + 0.1 * milliseconds);
+        m_velocity.y = -1*(m_velocity.y + 0.1 * milliseconds);
     }
     if (sf::Event::KeyReleased) {
         m_isJumping = false;
     }
     if (m_coreInstance) {
-        sf::Vector2f playerSize = getGlobalBounds().getSize();
-        sf::Vector2f searchPos = newPos + playerSize;
-        searchPos.x -= playerSize.x / 2;
+        sf::Vector2f hitbox = getHitBoxSize();
+        sf::Vector2f searchPos = newPos;
+        searchPos.y += hitbox.y / 2 + 5;
         debugRect->setPosition(searchPos);
         auto ttype = tileTypeToString(
                     m_coreInstance->getMap()->getTileTypeAt(searchPos));
@@ -76,22 +82,32 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 void Player::onUpdate(const sf::Time &deltaTime) {
     movement(deltaTime.asMilliseconds());
-    this->move(m_velocity);
+    // this->move(m_velocity);
+    b2Vec2 vel;
+    vel.Set(m_velocity.x * 25, m_velocity.y * 25);
+    m_body->ApplyForceToCenter(vel, true);
 
+    auto newWorldPos = m_body->GetPosition();
+    this->setPosition(coordWorldToPixels(newWorldPos));
+    this->setRotation(radToDeg(m_body->GetAngle()));
+    
+    if (m_coreInstance) {
+        m_coreInstance->debug()->updateDebugString("Player World Pos",
+            "("+ to_string_with_precision(newWorldPos.x, 2)
+            + ", "+ to_string_with_precision(newWorldPos.y, 2) +")");
+    }
 }
 
 void Player::handleEvent(const sf::Event &event) {}
 
-bool Player::onGround(const unsigned int screenHeight) const
-{
+bool Player::onGround(const unsigned int screenHeight) const {
     sf::Vector2f bottomCoords;
     bottomCoords.x = this->getGlobalBounds().left;
     bottomCoords.y = this->getGlobalBounds().top + this->getGlobalBounds().height + 10.0;
     if ((m_gameMap->getTileTypeAt(bottomCoords) != TileType::Empty) || (this->getPosition().y + this->getGlobalBounds().height + 1 > screenHeight)) {
         std::cout << "on ground" << std::endl;
         return true;
-    }
-    else {
+    } else {
         std::cout << "not on ground" << std::endl;
         return false;
     }

@@ -4,11 +4,6 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
-#include "core.h"
-#include "objects/tile.h"
-#include "text.h"
-
-#include "objects/debugInformer.h"
 
 #include "box2d/b2_world.h"
 #include "box2d/b2_body.h"
@@ -17,13 +12,26 @@
 #include "box2d/b2_fixture.h"
 #include "box2d/b2_math.h"
 
+#include "core.h"
+#include "objects/tile.h"
+#include "text.h"
+#include "objects/debugInformer.h"
+#include "b2DebugDraw.h"
+#include "utils.h"
+
+
 Core::Core() 
     : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0),
         m_debugInformer(new DebugInformer()), m_gameMap(new Map()),
                                             m_screenSize(1280, 720), m_world(m_gravity) {
     m_gameMap->setBottom(m_screenSize.y);
-    m_gameMap->createTiles();
     m_gameMap->setCoreInstance(this);
+    m_gameMap->createTiles();
+
+    // m_b2DebugFlags += b2Draw::e_shapeBit;
+    m_b2DebugFlags += b2Draw::e_jointBit;
+    m_b2DebugFlags += b2Draw::e_pairBit;
+    m_b2DebugFlags += b2Draw::e_centerOfMassBit;
 }
 
 Core::~Core() {
@@ -42,6 +50,10 @@ void Core::process() {
     m_window = &window;
 
     sf::Clock deltaClock;
+
+    b2DebugDraw b2dDraw(&window);
+    b2dDraw.SetFlags(m_b2DebugFlags);
+    m_world.SetDebugDraw(&b2dDraw);
     
     while ( window.isOpen() ) {
         sf::Time deltaTime = deltaClock.restart();
@@ -61,15 +73,16 @@ void Core::process() {
         window.draw(*m_gameMap);
 
         m_debugInformer->onUpdate(deltaTime);
-        window.draw(*m_debugInformer);
 
         m_world.Step((float) 1 / 60, 8, 3);
 
         for (auto e : m_actors) {
             e->onUpdate(deltaTime);
-            window.draw((sf::Sprite)*e);
+            window.draw(*(Object*)e);
         }
 
+        window.draw(*m_debugInformer);
+        m_world.DebugDraw();
         window.display();
     }
 }
@@ -95,13 +108,13 @@ void Core::registerActor(Actor* actor) {
     b2BodyDef bdef;
     if (actor->isItDynamic())
         bdef.type = b2_dynamicBody;
-    bdef.position.Set(actor->getGlobalBounds().left/24, actor->getGlobalBounds().top/24);
 
+    bdef.position = coordPixelsToWorld(actor->getPosition());
     b2Body* body = m_world.CreateBody(&bdef);
 
     b2PolygonShape ps;
-    sf::Vector2f hitboxsizes = actor->getHitBoxSize();
-    ps.SetAsBox(hitboxsizes.x/2/24, hitboxsizes.y/2/24);
+    b2Vec2 hitboxsizes = coordPixelsToWorld(actor->getHitBoxSize());
+    ps.SetAsBox(hitboxsizes.x / 2.0f, hitboxsizes.y / 2.0f);
 
 
     b2FixtureDef fd;

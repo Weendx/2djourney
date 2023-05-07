@@ -17,6 +17,8 @@ set(MAIN_SRC
 	${inc_dir}/text.h
 	${src_dir}/utils.cpp
 	${inc_dir}/utils.h
+	${inc_dir}/b2DebugDraw.h
+	${src_dir}/b2DebugDraw.cpp
 )
 
 set(OBJECTS_SRC

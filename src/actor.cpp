@@ -8,7 +8,7 @@
 Actor::Actor(const sf::Texture& texture, const sf::IntRect& rectangle, const bool &hasPhysics)
     : sf::Sprite(texture, rectangle) {
     m_hasPhysics = hasPhysics;
-    setOrigin(rectangle.width / 2, rectangle.height / 2);
+    setOrigin(rectangle.width / 2.0, rectangle.height / 2.0);
 }
 
 void Actor::draw(sf::RenderTarget& target, sf::RenderStates states) const {

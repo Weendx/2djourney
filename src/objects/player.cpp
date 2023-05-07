@@ -6,8 +6,8 @@
 #include "objects/tile.h"
 #include <iostream>
 
-Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle, const Map* gameMap, const std::vector<Tile*> tiles)
-                        : Actor(texture, rectangle), m_velocity(0.35, 0.35), m_gameMap(gameMap), m_tiles(tiles) { 
+Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle)
+                        : Actor(texture, rectangle), m_velocity(0.35, 0.35) { 
     setName("Player"); 
     setScale(2.2, 2.2);
 

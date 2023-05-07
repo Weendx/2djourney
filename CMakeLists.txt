@@ -15,6 +15,8 @@ set(MAIN_SRC
 	${inc_dir}/actor.h
     ${src_dir}/text.cpp
 	${inc_dir}/text.h
+	${src_dir}/utils.cpp
+	${inc_dir}/utils.h
 )
 
 set(OBJECTS_SRC

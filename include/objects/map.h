@@ -32,7 +32,7 @@ class Map : public Object {
     void setBottom(const int& bottom) { m_bottom = bottom; }
     void createTiles();
     TileType getTileTypeAt(const sf::Vector2f& coords) const;
-    const std::vector<Tile*> getCollisionTiles()const { return m_collisionTiles; }
+    // const std::vector<Tile*> getCollisionTiles()const { return m_collisionTiles; }
  private:
     std::vector<std::string> m_currentMapLayout;
     std::vector< std::vector<Tile*> > m_layers;
@@ -44,5 +44,5 @@ class Map : public Object {
                                     const std::size_t& tileId) const;
     int m_bottom;
     sf::Vector2f m_scale {1.56, 1.56};
-    std::vector<Tile*> m_collisionTiles;
+    // std::vector<Tile*> m_collisionTiles;
 };

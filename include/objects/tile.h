@@ -5,6 +5,7 @@
 #include "SFML/Graphics/Texture.hpp"
 #include "object.h"
 
+
 enum TileType {
     GrassBegin = 'A', Grass1 = 'B', Grass2 = 'C', GrassEnd = 'D', 
     GrassSingle = 'E', GrassPlatformBegin = 'F', GrassPlatformUp = 'G',
@@ -39,11 +40,14 @@ class Tile : public Object, public sf::Sprite {
     void handleEvent(const sf::Event &event) override {}
     operator std::string() const override;
     TileType getType() { return m_type; }
+    sf::Vector2f getHitboxSize() const;
+    const bool& hasCollision() const { return m_isCollide; }
  private:
     TileType m_type;
     static inline sf::Texture* m_tileSheet;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void loadTexture();
     const sf::IntRect getTileRect(const TileType& type);
+    bool m_isCollide;
 };
 

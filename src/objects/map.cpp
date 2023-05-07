@@ -1,8 +1,17 @@
 #include <iostream>
 #include <stdexcept>
+
 #include "SFML/Graphics/Rect.hpp"
+
+#include "box2d/b2_body.h"
+#include "box2d/b2_polygon_shape.h"
+#include "box2d/b2_fixture.h"
+
 #include "objects/map.h"
 #include "objects/tile.h"
+#include "core.h"
+#include "utils.h"
+
 
 Map::Map() {
     fillMap();
@@ -103,8 +112,34 @@ void Map::createTiles() {
             layerLength += tileBounds.width;
             ++layerData.tilesCount;
             layerTiles.push_back(tile);
-            if(tile->getType() != TileType::Empty)
-                m_collisionTiles.push_back(tile);
+            // TODO(): optimize
+            if (m_coreInstance && tile->hasCollision()) {
+                b2Vec2 b2TilePos = coordPixelsToWorld(tileBounds.getPosition());
+                b2Vec2 b2TileSize = coordPixelsToWorld(tileBounds.getSize());
+                
+                b2BodyDef bdef;
+                bdef.position = b2TilePos;
+                b2Body* body = m_coreInstance->getWorld()->CreateBody(&bdef);
+                tile->setBody(body);
+
+                b2PolygonShape pshape;
+                b2Vec2 centroid(
+                    b2TilePos.x + b2TileSize.x / 2, 
+                    b2TilePos.y + b2TileSize.y / 2
+                );
+                pshape.SetAsBox(
+                    b2TileSize.x / 2, b2TileSize.y / 2,
+                    centroid, 0
+                );
+
+                b2FixtureDef fixdef;
+                fixdef.shape = &pshape;
+                fixdef.density = 1;
+                fixdef.friction = 0;
+                fixdef.restitution = 0;
+
+                body->CreateFixture(&fixdef);
+            }
         }
 
         layerData.id = layerId;

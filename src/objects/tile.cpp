@@ -3,7 +3,8 @@
 #include <string>
 #include "objects/tile.h"
 
-Tile::Tile(const TileType& type) : m_type(type), sf::Sprite() {
+Tile::Tile(const TileType& type) 
+    : m_type(type), m_isCollide(true), sf::Sprite() {
     loadTexture();
     if (!m_tileSheet)
         throw std::runtime_error("Tile textures aren't loaded");
@@ -35,6 +36,9 @@ void Tile::loadTexture() {
         throw std::runtime_error("Can't load tileSheet.png");
 }
 
+sf::Vector2f Tile::getHitboxSize() const {
+    return getGlobalBounds().getSize();
+}
 
 const sf::IntRect Tile::getTileRect(const TileType& type) {
     int8_t w = 24, h = 24;

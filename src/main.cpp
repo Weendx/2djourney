@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
     sf::Texture playerSheet;
     if (!playerSheet.loadFromFile("resources/drawable/playerSheet.png"))
         throw std::runtime_error("Can't load player sprites");
-    Player* playerIdle1 = new Player(playerSheet, sf::IntRect(13, 6, 21, 32), core.getMap(), core.getTiles());
+    Player* playerIdle1 = new Player(playerSheet, sf::IntRect(13, 6, 21, 32));
     core.registerActor(playerIdle1);
     playerIdle1->setCoreInstance(&core);
 

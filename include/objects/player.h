@@ -11,7 +11,7 @@ class RectangleShape;
 
 class Player : public Actor {
 public:
-    Player(const sf::Texture& texture, const sf::IntRect& rectangle, const Map* gameMap, const std::vector<Tile*> tiles);
+    Player(const sf::Texture& texture, const sf::IntRect& rectangle);
     ~Player();
     void movement(const float& milliseconds);
     void onUpdate(const sf::Time& deltaTime) override;

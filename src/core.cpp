@@ -23,6 +23,7 @@ Core::Core()
                                             m_screenSize(1280, 720), m_world(m_gravity) {
     m_gameMap->setBottom(m_screenSize.y);
     m_gameMap->createTiles();
+    m_gameMap->setCoreInstance(this);
 }
 
 Core::~Core() {

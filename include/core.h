@@ -31,9 +31,11 @@ class Core {
 
     float getFPS() const { return m_fps; }
 
-    const std::vector<Tile*> getTiles()const { return m_gameMap->getCollisionTiles(); }
+    // const std::vector<Tile*> getTiles()const { return m_gameMap->getCollisionTiles(); }
     const Map* getMap() const { return m_gameMap; }
     DebugInformer* debug() const { return m_debugInformer; }
+    b2World* getWorld() { return &m_world; }
+    const b2World* getWorld() const { return &m_world; }  // ?
  private:
     void close();
     sf::RenderWindow* m_window;

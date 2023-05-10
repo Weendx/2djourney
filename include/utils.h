@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include "SFML/System/Vector2.hpp"
+#include "box2d/b2_math.h"
 
 // SFML stuff
 namespace sf {

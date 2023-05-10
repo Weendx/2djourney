@@ -1,3 +1,4 @@
+#include "utils.h"
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Graphics/RectangleShape.hpp"
@@ -7,11 +8,10 @@
 #include <iostream>
 #include <string>
 #include "box2d/b2_body.h"
-#include "utils.h"
 
 Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle,
                                                 const sf::Vector2f& hitbox)
-        : Actor(texture, rectangle, hitbox), m_velocity(0.35, 0.35) { 
+        : Actor(texture, rectangle, hitbox), m_velocity(0.0, 0.0) { 
     setName("Player"); 
     adjustScale({2.2, 2.2});
 
@@ -82,19 +82,22 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 void Player::onUpdate(const sf::Time &deltaTime) {
     movement(deltaTime.asMilliseconds());
-    // this->move(m_velocity);
+    this->move(m_velocity);
     b2Vec2 vel;
     vel.Set(m_velocity.x * 25, m_velocity.y * 25);
     m_body->ApplyForceToCenter(vel, true);
 
     auto newWorldPos = m_body->GetPosition();
-    this->setPosition(coordWorldToPixels(newWorldPos));
-    this->setRotation(radToDeg(m_body->GetAngle()));
+    //this->setPosition(coordWorldToPixels(newWorldPos));
+    //this->setRotation(radToDeg(m_body->GetAngle()));
     
-    if (m_coreInstance) {
+   if (m_coreInstance) {
         m_coreInstance->debug()->updateDebugString("Player World Pos",
             "("+ to_string_with_precision(newWorldPos.x, 2)
             + ", "+ to_string_with_precision(newWorldPos.y, 2) +")");
+    }
+    if (m_coreInstance) {
+        m_coreInstance->setPlayerCoords(getPosition());
     }
 }
 

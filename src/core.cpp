@@ -54,19 +54,23 @@ void Core::process() {
     b2DebugDraw b2dDraw(&window);
     b2dDraw.SetFlags(m_b2DebugFlags);
     m_world.SetDebugDraw(&b2dDraw);
-    
     while ( window.isOpen() ) {
         sf::Time deltaTime = deltaClock.restart();
         sf::Event event;
-
+        
+        sf::View view;
+        view.reset(sf::FloatRect(0, 0, 1280, 720));
+        
         while (window.pollEvent(event)) {
             this->handleEvent(event);
             for (auto e : m_actors)
                 e->handleEvent(event);
         }
-        
         m_fps = 1 / deltaTime.asSeconds();
         m_debugInformer->setFPS(m_fps);
+
+        updateView(view, playerCoords);
+        window.setView(view);
 
         window.clear();
 
@@ -80,9 +84,10 @@ void Core::process() {
             e->onUpdate(deltaTime);
             window.draw(*(Object*)e);
         }
-
-        window.draw(*m_debugInformer);
         m_world.DebugDraw();
+        window.setView(window.getDefaultView());
+        window.draw(*m_debugInformer);
+
         window.display();
     }
 }
@@ -144,4 +149,9 @@ void Core::updateScale() {
     for (auto e : m_actors) 
         e->adjustScale(m_scale);
     m_debugInformer->adjustScale(m_scale);
+}
+
+sf::View Core::updateView(sf::View& view, sf::Vector2f& playerCoords) {
+    view.setCenter(playerCoords);
+    return view;
 }

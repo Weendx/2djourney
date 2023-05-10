@@ -2,6 +2,7 @@
 
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Window/Event.hpp"
+#include "SFML/Graphics/View.hpp"
 #include "actor.h"
 #include "objects/map.h"
 
@@ -18,6 +19,9 @@ public:
     void onUpdate(const sf::Time& deltaTime) override;
     void handleEvent(const sf::Event& event) override;
     bool onGround(const unsigned int screenHeight)const;
+    void setViewPosition() {
+
+    }
 private:
     const Map* m_gameMap;
     // const std::vector<Tile*> m_tiles;
@@ -34,4 +38,5 @@ private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     sf::RectangleShape* debugRect;
     sf::RectangleShape* debugRect2;
+
 };

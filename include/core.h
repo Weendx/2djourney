@@ -6,6 +6,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Graphics/View.hpp>
 
 #include "actor.h"
 #include "object.h"
@@ -27,6 +28,8 @@ class Core {
 
     void registerActor(Actor* actor);
     void updateScale();
+    void setPlayerCoords(sf::Vector2f coords) { playerCoords = coords; }
+    sf::View updateView(sf::View& view, sf::Vector2f& playerCoords);
 
     float getFPS() const { return m_fps; }
 
@@ -53,6 +56,8 @@ class Core {
     void setScale(const float &factorX, const float &factorY);
     b2World m_world;
     b2Vec2 m_gravity{ 0.0, 10.0 };
+
+    sf::Vector2f playerCoords;
 
     uint32 m_b2DebugFlags;
 };

@@ -1,3 +1,4 @@
+#include "utils.h"
 #include "SFML/Config.hpp"
 #include "SFML/Graphics/CircleShape.hpp"
 #include "SFML/Graphics/Color.hpp"
@@ -10,7 +11,6 @@
 
 #include "SFML/System/Vector2.hpp"
 #include "b2DebugDraw.h"
-#include "utils.h"
 
 b2DebugDraw::b2DebugDraw(sf::RenderWindow* window) : m_window(window) {}
 

@@ -27,7 +27,7 @@ private:
     // const std::vector<Tile*> m_tiles;
 
     //Physics
-    const float m_moveSpeed = 0.3;
+    const float m_moveSpeed = 1.0;
     sf::Vector2f m_velocity;
     const float m_gravitySpeed = 10.0;
     const float m_accelerationY = 1.0;

@@ -26,7 +26,7 @@ class Core {
     void handleEvent(sf::Event);
     void render();
 
-    void registerActor(Actor* actor);
+    void registerObject(Object* object);
     void updateScale();
     void setPlayerCoords(sf::Vector2f coords) { playerCoords = coords; }
     sf::View updateView(sf::View& view, sf::Vector2f& playerCoords);
@@ -46,7 +46,7 @@ class Core {
     std::vector<Tile*> m_collisionTiles;
     DebugInformer* m_debugInformer;
     // std::vector<Object*> m_objects;
-    std::vector<Actor*> m_actors;
+    std::vector<Object*> m_objects;
 
     sf::Vector2f m_scale;
     sf::Vector2f m_screenSize;
@@ -55,7 +55,7 @@ class Core {
     void setScale(const sf::Vector2f &newScale);
     void setScale(const float &factorX, const float &factorY);
     b2World m_world;
-    b2Vec2 m_gravity{ 0.0, 10.0 };
+    b2Vec2 m_gravity{ 0.0f, 50.0f };
 
     sf::Vector2f playerCoords;
 

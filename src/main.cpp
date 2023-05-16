@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     Player* playerIdle1 = new Player(playerSheet,
         sf::IntRect(0, 0, 50, 37), sf::Vector2f(22, 32));
     playerIdle1->setPosition(100, 100);
-    core.registerActor(playerIdle1);
+    core.registerObject(playerIdle1);
     playerIdle1->setCoreInstance(&core);
 
     sf::Font defaultFont;

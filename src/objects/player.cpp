@@ -1,3 +1,4 @@
+#include "box2d/b2_math.h"
 #include "utils.h"
 #include "SFML/Graphics/Color.hpp"
 #include "SFML/System/Vector2.hpp"
@@ -47,15 +48,17 @@ void Player::movement(const float& milliseconds) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
         m_velocity.x += m_moveSpeed * milliseconds;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+    /*if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
         m_velocity.y += -m_moveSpeed * milliseconds;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
         m_velocity.y += m_moveSpeed * milliseconds;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) /* && onGround(720) */ && !m_isJumping) {
+    }*/
+    if (!m_isJumping && sf::Keyboard::isKeyPressed(sf::Keyboard::Space) /* && onGround(720) */) {
         m_isJumping = true;
-        m_velocity.y = -1*(m_velocity.y + 0.1 * milliseconds);
+        b2Vec2 vel(0, -50.f);
+        m_body->ApplyLinearImpulseToCenter(vel, true);
+        // m_velocity.y = -1*(m_velocity.y + 0.1 * milliseconds);
     }
     if (sf::Event::KeyReleased) {
         m_isJumping = false;
@@ -75,8 +78,8 @@ void Player::movement(const float& milliseconds) {
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw((sf::Sprite) *this, states);
-    target.draw(*debugRect, states);
-    target.draw(*debugRect2, states);
+    //target.draw(*debugRect, states);
+    //target.draw(*debugRect2, states);
 }
 
 
@@ -84,12 +87,17 @@ void Player::onUpdate(const sf::Time &deltaTime) {
     movement(deltaTime.asMilliseconds());
     this->move(m_velocity);
     b2Vec2 vel;
-    vel.Set(m_velocity.x * 25, m_velocity.y * 25);
-    m_body->ApplyForceToCenter(vel, true);
+    int scale = 100;
+
+    vel.Set(m_velocity.x * scale, m_velocity.y * scale);
+    if (std::abs(m_body->GetLinearVelocity().x) < 50.f) {
+        m_body->ApplyForceToCenter(vel, true);
+    }
+
 
     auto newWorldPos = m_body->GetPosition();
-    //this->setPosition(coordWorldToPixels(newWorldPos));
-    //this->setRotation(radToDeg(m_body->GetAngle()));
+    this->setPosition(coordWorldToPixels(newWorldPos));
+    this->setRotation(radToDeg(m_body->GetAngle()));
     
    if (m_coreInstance) {
         m_coreInstance->debug()->updateDebugString("Player World Pos",

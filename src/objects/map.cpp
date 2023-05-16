@@ -36,13 +36,19 @@ void Map::adjustScale(const sf::Vector2f &factors) {
 void Map::fillMap() {
     m_currentMapLayout.push_back("0");
     m_currentMapLayout.push_back("0");
-    m_currentMapLayout.push_back("0UYZYZYZYZYZYZYZYZYZX");
-    m_currentMapLayout.push_back("0T111111111111111111W");
-    m_currentMapLayout.push_back("0S111111111111111111V");
-    m_currentMapLayout.push_back("0T111111111111111111W");
-    m_currentMapLayout.push_back("0S111111111111111111V");
-    m_currentMapLayout.push_back("0T111111111111111111W");
-    m_currentMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCD");
+    m_currentMapLayout.push_back("0UYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZX");
+    m_currentMapLayout.push_back("0T111111111111111111111111111111111111111111111111111111111111111111111111W");
+    m_currentMapLayout.push_back("0S111111111111111111111111111111111111111111111111111111111111111111111111V");
+    m_currentMapLayout.push_back("0T111111111111111111111111111111111111111111111111111111111111111111111111W");
+    m_currentMapLayout.push_back("0S111111111111111111111111111111111111111111111111111111111111111111111111V");
+    m_currentMapLayout.push_back("0T111111111111111111111111111111111111111111111111111111111111111111111111W");
+    m_currentMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBC111111111111111111111111111111111CBCRbcbr");
+    m_currentMapLayout.push_back("0000000000000000000000000000000000CBC11111111111111111111111111BCBD0000000r");
+    m_currentMapLayout.push_back("0000000000000000000000000000000000000BC11111111111111111111BCBC00000000000r");
+    m_currentMapLayout.push_back("000000000000000000000000000000000000000BCBC11111111111CBCBC000000000000000r");
+    m_currentMapLayout.push_back("0000000000FIJIJH000000000000000000000000000BCBCBCBCBCB00000000000000000000r");
+    for (int i = 0; i < 3; ++i)
+        m_currentMapLayout.push_back("0");
     for (int i = 0; i < 10; ++i)
         m_currentMapLayout.push_back("00000000000000000000e");
 
@@ -131,7 +137,7 @@ void Map::createTiles() {
                 b2FixtureDef fixdef;
                 fixdef.shape = &pshape;
                 fixdef.density = 1;
-                fixdef.friction = 0;
+                fixdef.friction = 0.4;
                 fixdef.restitution = 0;
 
                 body->CreateFixture(&fixdef);

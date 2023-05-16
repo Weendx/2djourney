@@ -15,7 +15,8 @@ class Actor
     virtual ~Actor() {} 
     operator std::string() const override;
     void adjustScale(const sf::Vector2f &factors) override;
-    sf::Vector2f getHitBoxSize();
+    sf::Vector2f getHitBoxSize() override;
+    void addPhysics(b2World* world) override;
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void init();

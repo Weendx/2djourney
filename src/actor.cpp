@@ -2,8 +2,13 @@
 #include <iostream>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <box2d/b2_body.h>
+#include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_fixture.h>
+#include <box2d/b2_world.h>
 #include <string>
 #include "actor.h"
+#include "utils.h"
 
 
 Actor::Actor(const sf::Texture& texture, const sf::IntRect& rectangle, const bool &hasPhysics)
@@ -44,4 +49,30 @@ sf::Vector2f Actor::getHitBoxSize() {
     if (m_hitboxSizes.x != 0 && m_hitboxSizes.y != 0)
         return m_hitboxSizes;
     return this->getGlobalBounds().getSize();
+}
+
+void Actor::addPhysics(b2World* world) {
+    b2BodyDef bdef;
+    if (this->isItDynamic()) {
+        bdef.type = b2_dynamicBody;
+        bdef.fixedRotation = true;
+    }
+
+    bdef.position = coordPixelsToWorld(this->getPosition());
+    b2Body* body = world->CreateBody(&bdef);
+
+    b2PolygonShape ps;
+    b2Vec2 hitboxsizes = coordPixelsToWorld(this->getHitBoxSize());
+    ps.SetAsBox(hitboxsizes.x / 2.0f, hitboxsizes.y / 2.0f);
+
+
+    b2FixtureDef fd;
+    fd.shape = &ps;
+
+    fd.density = 1;
+    fd.friction = 50;
+    fd.restitution = 0;
+
+    body->CreateFixture(&fd);
+    this->setBody(body);
 }

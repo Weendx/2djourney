@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -13,6 +14,7 @@
 #include "box2d/b2_math.h"
 
 #include "core.h"
+#include "objects/player.h"
 #include "objects/tile.h"
 #include "text.h"
 #include "objects/debugInformer.h"
@@ -24,14 +26,15 @@ Core::Core()
     : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0),
         m_debugInformer(new DebugInformer()), m_gameMap(new Map()),
                                             m_screenSize(1280, 720), m_world(m_gravity) {
+    m_world.SetGravity(m_gravity);
     m_gameMap->setBottom(m_screenSize.y);
     m_gameMap->setCoreInstance(this);
     m_gameMap->createTiles();
 
-    // m_b2DebugFlags += b2Draw::e_shapeBit;
-    m_b2DebugFlags += b2Draw::e_jointBit;
-    m_b2DebugFlags += b2Draw::e_pairBit;
-    m_b2DebugFlags += b2Draw::e_centerOfMassBit;
+    m_b2DebugFlags += b2Draw::e_shapeBit;
+    // m_b2DebugFlags += b2Draw::e_jointBit;
+    //m_b2DebugFlags += b2Draw::e_pairBit;
+    // m_b2DebugFlags += b2Draw::e_centerOfMassBit;
 }
 
 Core::~Core() {
@@ -44,6 +47,12 @@ void Core::close() {
 }
 
 void Core::process() {
+    sf::Texture background;
+    background.loadFromFile("resources/drawable/bg.png");
+    sf::Sprite bg;
+    bg.setTexture(background);
+    bg.setPosition(0.0, -500.0);
+
     sf::RenderWindow window(
             sf::VideoMode(m_screenSize.x, m_screenSize.y), "2djourney");
     window.setVerticalSyncEnabled(true);
@@ -63,7 +72,7 @@ void Core::process() {
         
         while (window.pollEvent(event)) {
             this->handleEvent(event);
-            for (auto e : m_actors)
+            for (auto e : m_objects)
                 e->handleEvent(event);
         }
         m_fps = 1 / deltaTime.asSeconds();
@@ -73,6 +82,7 @@ void Core::process() {
         window.setView(view);
 
         window.clear();
+        window.draw(bg);
 
         window.draw(*m_gameMap);
 
@@ -80,11 +90,11 @@ void Core::process() {
 
         m_world.Step((float) 1 / 60, 8, 3);
 
-        for (auto e : m_actors) {
+        for (auto e : m_objects) {
             e->onUpdate(deltaTime);
-            window.draw(*(Object*)e);
+            window.draw(*e);
         }
-        m_world.DebugDraw();
+        //m_world.DebugDraw();
         window.setView(window.getDefaultView());
         window.draw(*m_debugInformer);
 
@@ -106,31 +116,11 @@ void Core::handleEvent(sf::Event event) {
     }
 }
 
-void Core::registerActor(Actor* actor) {
-    m_actors.push_back(actor);
-    if (!actor->hasPhysics())
+void Core::registerObject(Object* object) {
+    m_objects.push_back(object);
+    if (!object->hasPhysics())
         return;
-    b2BodyDef bdef;
-    if (actor->isItDynamic())
-        bdef.type = b2_dynamicBody;
-
-    bdef.position = coordPixelsToWorld(actor->getPosition());
-    b2Body* body = m_world.CreateBody(&bdef);
-
-    b2PolygonShape ps;
-    b2Vec2 hitboxsizes = coordPixelsToWorld(actor->getHitBoxSize());
-    ps.SetAsBox(hitboxsizes.x / 2.0f, hitboxsizes.y / 2.0f);
-
-
-    b2FixtureDef fd;
-    fd.shape = &ps;
-
-    fd.density = 1;
-    fd.friction = 0;
-    fd.restitution = 0;
-
-    body->CreateFixture(&fd);
-    actor->setBody(body);
+    object->addPhysics(&m_world);
 }
 
 void Core::setScale(const sf::Vector2f &newScale) {
@@ -146,7 +136,7 @@ void Core::setScale(const float &factorX, const float &factorY) {
 
 void Core::updateScale() {
     m_gameMap->adjustScale(m_scale);
-    for (auto e : m_actors) 
+    for (auto e : m_objects) 
         e->adjustScale(m_scale);
     m_debugInformer->adjustScale(m_scale);
 }

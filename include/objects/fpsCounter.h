@@ -6,6 +6,7 @@
 class FpsCounter : public Text {
  public:
     explicit FpsCounter(const sf::Font& font);
+    FpsCounter(const sf::Font& font, unsigned const int& textSize);
     virtual ~FpsCounter() {}
     void onUpdate(const sf::Time &deltaTime) override;
     void handleEvent(const sf::Event& event) override {}

@@ -28,12 +28,11 @@ class Core {
 
     void registerObject(Object* object);
     void updateScale();
-    void setPlayerCoords(sf::Vector2f coords) { playerCoords = coords; }
-    sf::View updateView(sf::View& view, sf::Vector2f& playerCoords);
+    void setPlayerCoords(const sf::Vector2f& coords) { playerCoords = coords; }
+    sf::View* updateView(sf::View* view, const sf::Vector2f& playerCoords);
 
     float getFPS() const { return m_fps; }
 
-    // const std::vector<Tile*> getTiles()const { return m_gameMap->getCollisionTiles(); }
     const Map* getMap() const { return m_gameMap; }
     DebugInformer* debug() const { return m_debugInformer; }
     b2World* getWorld() { return &m_world; }

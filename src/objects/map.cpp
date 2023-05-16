@@ -1,22 +1,24 @@
+#include "objects/map.h"
+
+#include <box2d/b2_body.h>
+#include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_chain_shape.h>
+#include <box2d/b2_fixture.h>
+
 #include <cstdint>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/Graphics/Rect.hpp"
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/System/Vector2.hpp>
 
-#include "SFML/Graphics/RectangleShape.hpp"
-#include "SFML/System/Vector2.hpp"
-#include "box2d/b2_body.h"
-#include "box2d/b2_polygon_shape.h"
-#include "box2d/b2_chain_shape.h"
-#include "box2d/b2_fixture.h"
-
-#include "objects/map.h"
 #include "objects/tile.h"
 #include "core.h"
 #include "utils.h"
+
 
 sf::RectangleShape* tilePointer = nullptr;
 
@@ -24,8 +26,8 @@ Map::Map() {
     fillMap();
 }
 
- // potential BUG place here
- 
+// potential BUG place here
+
 Map::Map(const int& bottom) : m_startPoint(0, bottom) {
     fillMap();
     init();    
@@ -42,7 +44,6 @@ void Map::init() {
         b2BodyDef bd;
         // bd.position = coordPixelsToWorld(m_startPoint);
         m_surface = m_coreInstance->getWorld()->CreateBody(&bd);
-        // m_surface->SetUserData((void*) "ground");
     }
     
     tilePointer = new sf::RectangleShape(sf::Vector2f(24, 24));
@@ -73,19 +74,6 @@ void Map::fillMap() {
         m_currentMapLayout.push_back("0");
     for (int i = 0; i < 10; ++i)
         m_currentMapLayout.push_back("00000000000000000000e");
-
-    /* m_currentMapLayout.push_back("0");
-    m_currentMapLayout.push_back("0");
-    m_currentMapLayout.push_back("000000000000000000000");
-    m_currentMapLayout.push_back("000000000000000000000");
-    m_currentMapLayout.push_back("000000000000000000000");
-    m_currentMapLayout.push_back("000000000000000000000");
-    m_currentMapLayout.push_back("000000000000000000000");
-    m_currentMapLayout.push_back("000000000000000000000");
-    m_currentMapLayout.push_back("000000000000111100000");
-    m_currentMapLayout.push_back("000000000000111100000");
-    m_currentMapLayout.push_back("000000000000111100000");
-    m_currentMapLayout.push_back("000000000000111100000"); */
 }
 
 void Map::deleteTiles() {
@@ -99,14 +87,15 @@ sf::Vector2f getTileIdAt(const float& x, const float& y) {
     return sf::Vector2f();
 }
 
-Tile* Map::createTileAt(const float& tileId_x, const float& tileId_y, const TileType& type) {
+Tile* Map::createTileAt(const float& tileId_x, 
+                        const float& tileId_y, const TileType& type) {
     Tile* tile = new Tile(type);
     sf::Vector2f tileLocalSize = tile->getLocalBounds().getSize();
     sf::Vector2f tileSize(defaultTileParams.width, defaultTileParams.height);
     if (tileLocalSize != tileSize) {
         std::string sizes = '(' + std::to_string(tileLocalSize.x) + ',' + ' ' \
             + std::to_string(tileLocalSize.y) + ')';
-        throw std::logic_error("Invalid tile size in Map settings. Got " + sizes);
+        throw std::logic_error("Invalid tile size in Map. Got " + sizes);
     }
     sf::Vector2f tilePos;
     tileSize.x *= m_scale.x;
@@ -129,7 +118,9 @@ void Map::addTileCollision(Tile* tile,
 
     b2Vec2 b2TilePos = coordPixelsToWorld(tilePos);
     b2Vec2 b2TileSize = coordPixelsToWorld(tileSize);
-    b2Vec2 center(b2TileSize.x / 2.0, b2TileSize.y / 2.0);  // Local center of the tile
+
+    // Local center of the tile
+    b2Vec2 center(b2TileSize.x / 2.0, b2TileSize.y / 2.0);
 
     b2BodyDef bdef;
     bdef.position.Set(b2TilePos.x + center.x, b2TilePos.y + center.y);
@@ -149,7 +140,8 @@ void Map::addTileCollision(Tile* tile,
     // m_surface->CreateFixture(&pshape, 0);
 }
 
-Tile* Map::updateTileAt(const float& tileId_x, const float& tileId_y, const TileType& newType) {
+Tile* Map::updateTileAt(const float& tileId_x, 
+                        const float& tileId_y, const TileType& newType) {
     if (newType == TileType::Empty)
         throw std::domain_error("This action isn't allowed!");
     Tile* tile = m_layers[tileId_y][tileId_x];
@@ -182,8 +174,6 @@ void Map::applyCollision() {
                     vertices[vertCount++] = coordPixelsToWorld(tilePos);
                 }
 
-                // vertices[vertCount++] = coordPixelsToWorld( \
-                //         tilePos.x + tileSize.x, tilePos.y);
                 lastTileRightCoord.x = tilePos.x + tileSize.x;
                 lastTileRightCoord.y = tilePos.y;
                 lastTileBottomCoord.x = tilePos.x + tileSize.x;
@@ -191,7 +181,6 @@ void Map::applyCollision() {
                 
                 b2Vec2 b2TileSize = coordPixelsToWorld(tileSize);
                 shapeLength += b2TileSize.x;  // ugrh
-                // shapeLength += vertices[vertCount - 1].x - vertices[vertCount - 2].x;
             }
             if (!tile->hasCollision() || shapeLength > 7 || \
                         vertCount + 3 > MAX_VERTICES_AT_ONE_SHAPE) {
@@ -199,8 +188,8 @@ void Map::applyCollision() {
                     continue;
                 vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
                 vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
+                
                 b2ChainShape shape;
-                // shape.Set(vertices, vertCount);
                 shape.CreateLoop(vertices, vertCount);
 
                 b2FixtureDef fixdef;
@@ -224,8 +213,8 @@ void Map::applyCollision() {
             continue;
         vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
         vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
+        
         b2ChainShape shape;
-        // shape.Set(vertices, vertCount);
         shape.CreateLoop(vertices, vertCount);
 
         b2FixtureDef fixdef;
@@ -258,11 +247,11 @@ void Map::createTiles() {
         std::vector<Tile*> layerTiles;
         LayerData layerData;
         for (char tileType : layer) {
-            Tile* tile = createTileAt(lastTileId.x, lastTileId.y, (TileType) tileType);
+            Tile* tile = createTileAt(
+                    lastTileId.x, lastTileId.y, (TileType) tileType);
             layerTiles.push_back(tile);
             ++lastTileId.x;
         }
-        
         
         layerData.id = lastTileId.y;
         layerData.tilesCount = lastTileId.x;
@@ -270,7 +259,6 @@ void Map::createTiles() {
         layerData.startY = m_startPoint.y - tileSize.y * (lastTileId.y + 1);
         layerData.endX = m_startPoint.x + tileSize.x * lastTileId.x;
         layerData.endY = layerData.startY + tileSize.y;
-        layerData.tilesLength.push_back(std::array<float, 2> {tileSize.x, lastTileId.x + 1});
 
         m_layers.push_back(layerTiles);
         m_layersData.push_back(layerData);
@@ -282,18 +270,7 @@ void Map::createTiles() {
     // m_layers[6][2] = updateTileAt(2, 6, TileType::GrassSlopeDown3);
 }
 
-float Map::getTileWidth(const TilesLengthArr& tilesLength, 
-                                    const std::size_t& tileId) const {
-    for (auto part : tilesLength) {
-        if ( (tileId + 1) - part[1] <= 0 ) {
-            return part[0];  // //
-        }
-    }
-    throw std::logic_error("Can't find the tile width");
-}
-
 TileType Map::getTileTypeAt(const sf::Vector2f& coords) const {
-    // return TileType::Empty;
     for (int i = m_layers.size() - 1; i >= 0; --i) {
         if (tilePointer)
             tilePointer->setFillColor(sf::Color::Transparent);
@@ -304,7 +281,6 @@ TileType Map::getTileTypeAt(const sf::Vector2f& coords) const {
         }
         float marginX = m_layersData[i].startX;
         for (std::size_t j = 0; j < m_layersData[i].tilesCount; ++j) {
-            // float width = getTileWidth(m_layersData[i].tilesLength, j);
             float width = defaultTileParams.width * m_scale.x;
             if (tilePointer) {
                 tilePointer->setPosition(marginX, m_layersData[i].startY);

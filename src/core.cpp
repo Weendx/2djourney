@@ -25,7 +25,7 @@
 Core::Core() 
     : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0),
         m_debugInformer(new DebugInformer()), m_gameMap(new Map()),
-                                            m_screenSize(1280, 720), m_world(m_gravity) {
+                                m_screenSize(1280, 720), m_world(m_gravity) {
     m_world.SetGravity(m_gravity);
     m_gameMap->setBottom(m_screenSize.y);
     m_gameMap->setCoreInstance(this);
@@ -38,7 +38,7 @@ Core::Core()
 
     m_b2DebugFlags += b2Draw::e_shapeBit;
     // m_b2DebugFlags += b2Draw::e_jointBit;
-    //m_b2DebugFlags += b2Draw::e_pairBit;
+    // m_b2DebugFlags += b2Draw::e_pairBit;
     // m_b2DebugFlags += b2Draw::e_centerOfMassBit;
 }
 
@@ -73,7 +73,7 @@ void Core::process() {
         sf::Event event;
         
         sf::View view;
-        view.reset(sf::FloatRect(0, 0, 1280, 720));
+        view.reset(sf::FloatRect(0, 0, m_screenSize.x, m_screenSize.y));
         
         while (window.pollEvent(event)) {
             this->handleEvent(event);
@@ -83,7 +83,7 @@ void Core::process() {
         m_fps = 1 / deltaTime.asSeconds();
         m_debugInformer->setFPS(m_fps);
 
-        updateView(view, playerCoords);
+        updateView(&view, playerCoords);
         window.setView(view);
 
         window.clear();
@@ -93,7 +93,7 @@ void Core::process() {
 
         m_debugInformer->onUpdate(deltaTime);
 
-        m_world.Step((float) 1 / 60, 8, 3);
+        m_world.Step(1.0f / 60, 8, 3);
 
         for (auto e : m_objects) {
             e->onUpdate(deltaTime);
@@ -147,7 +147,7 @@ void Core::updateScale() {
     m_debugInformer->adjustScale(m_scale);
 }
 
-sf::View Core::updateView(sf::View& view, sf::Vector2f& playerCoords) {
-    view.setCenter(playerCoords);
+sf::View* Core::updateView(sf::View* view, const sf::Vector2f& playerCoords) {
+    view->setCenter(playerCoords);
     return view;
 }

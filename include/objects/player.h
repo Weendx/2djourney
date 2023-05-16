@@ -13,7 +13,7 @@ class RectangleShape;
 }
 
 class Player : public Actor {
-public:
+ public:
     Player(const sf::Texture& texture, const sf::IntRect& rectangle,
                             const sf::Vector2f& hitboxSizes = sf::Vector2f());
     ~Player();
@@ -22,21 +22,20 @@ public:
     void handleEvent(const sf::Event& event) override;
     void addPhysics(b2World* world) override;
     bool isOnGround();
-    void setViewPosition() {
+    void setViewPosition() {}
 
-    }
-private:
+ private:
     const Map* m_gameMap;
     // const std::vector<Tile*> m_tiles;
 
-    //Physics
+    // Physics
     const float m_moveSpeed = 1.0;
     sf::Vector2f m_velocity;
     const float m_gravitySpeed = 10.0;
     const float m_accelerationY = 1.0;
     bool m_isJumping = false;
     sf::FloatRect m_nextPos;
-    //sf::RectangleShape m_hitbox;
+    // sf::RectangleShape m_hitbox;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     sf::RectangleShape* searchRect;

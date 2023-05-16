@@ -17,7 +17,8 @@ class Actor
     void adjustScale(const sf::Vector2f &factors) override;
     sf::Vector2f getHitBoxSize() override;
     void addPhysics(b2World* world) override;
-private:
+
+ private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void init();
     sf::Vector2f m_hitboxSizes;

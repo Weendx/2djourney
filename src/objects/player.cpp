@@ -1,18 +1,22 @@
-#include "box2d/b2_math.h"
-#include "box2d/b2_polygon_shape.h"
-#include "utils.h"
-#include "SFML/Graphics/Color.hpp"
-#include "SFML/System/Vector2.hpp"
-#include "SFML/Graphics/RectangleShape.hpp"
-#include "core.h"
 #include "objects/player.h"
-#include "objects/tile.h"
+#include <box2d/b2_math.h>
+#include <box2d/b2_body.h>
+#include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_contact.h>
+#include <box2d/b2_world_callbacks.h>
+
 #include <cstdint>
 #include <iostream>
 #include <string>
-#include "box2d/b2_body.h"
-#include <box2d/b2_world_callbacks.h>
-#include <box2d/b2_contact.h>
+
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+
+#include "core.h"
+#include "objects/tile.h"
+#include "utils.h"
+
 
 namespace {
 int contactsCount = 0;
@@ -64,7 +68,8 @@ void Player::movement(const float& milliseconds) {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
         m_velocity.y += m_moveSpeed * milliseconds;
     }*/
-    if (!m_isJumping && sf::Keyboard::isKeyPressed(sf::Keyboard::Space) /* && onGround(720) */) {
+    if (!m_isJumping && sf::Keyboard::isKeyPressed(sf::Keyboard::Space)
+                                                        /* && isOnGround() */) {
         m_isJumping = true;
         b2Vec2 vel(0, -0.25f);
         m_body->ApplyLinearImpulseToCenter(vel, true);
@@ -113,7 +118,7 @@ void Player::onUpdate(const sf::Time &deltaTime) {
     this->setPosition(coordWorldToPixels(newWorldPos));
     this->setRotation(radToDeg(m_body->GetAngle()));
     
-   if (m_coreInstance) {
+    if (m_coreInstance) {
         m_coreInstance->debug()->updateDebugString("Player World Pos",
             "("+ to_string_with_precision(newWorldPos.x, 2)
             + ", "+ to_string_with_precision(newWorldPos.y, 2) +")");

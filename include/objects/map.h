@@ -10,8 +10,6 @@
 class b2Body;
 class b2Vec2;
 
-using TilesLengthArr = std::vector<std::array<float, 2>>;
-
 struct LayerData {
     uint16_t tilesCount = 0;
     uint16_t id = 0;
@@ -20,7 +18,6 @@ struct LayerData {
     float endX = 0;
     float endY = 0;
     float tilesHeight = 0;
-    TilesLengthArr tilesLength;  // [tileWidth, repeat]
 };
 
 struct TileDef {
@@ -53,7 +50,7 @@ class Map : public Object {
     bool checkGroundAt(const sf::Vector2f& coords) const;
     bool checkGroundAt(const b2Vec2& worldCoords) const;
     TileType getTileTypeAt(const sf::Vector2f& coords) const;
-    // const std::vector<Tile*> getCollisionTiles()const { return m_collisionTiles; }
+
  private:
     std::vector<std::string> m_currentMapLayout;
     std::vector< std::vector<Tile*> > m_layers;
@@ -71,8 +68,7 @@ class Map : public Object {
 
     sf::Vector2f getTileIdAt(const float& pixels_x, const float& pixels_y);
     void applyCollision();
-    float getTileWidth(const TilesLengthArr& tilesLength, 
-                                    const std::size_t& tileId) const;
+
     sf::Vector2f m_startPoint;
     sf::Vector2f m_scale {1.56, 1.56};
     TileDef defaultTileParams;

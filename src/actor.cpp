@@ -1,24 +1,25 @@
-
-#include <iostream>
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/Sprite.hpp>
+#include "actor.h"
 #include <box2d/b2_body.h>
 #include <box2d/b2_polygon_shape.h>
 #include <box2d/b2_fixture.h>
 #include <box2d/b2_world.h>
+#include <iostream>
 #include <string>
-#include "actor.h"
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+
 #include "utils.h"
 
 
-Actor::Actor(const sf::Texture& texture, const sf::IntRect& rectangle, const bool &hasPhysics)
-    : sf::Sprite(texture, rectangle) {
+Actor::Actor(const sf::Texture& texture, 
+                const sf::IntRect& rectangle, const bool &hasPhysics)
+                                    : sf::Sprite(texture, rectangle) {
     m_hasPhysics = hasPhysics;
     init();
 }
 Actor::Actor(const sf::Texture& texture, const sf::IntRect& rectangle, 
-            const sf::Vector2f& hitboxSizes, const bool &hasPhysics)
-    : sf::Sprite(texture, rectangle), m_hitboxSizes(hitboxSizes) {
+                const sf::Vector2f& hitboxSizes, const bool &hasPhysics)
+            : sf::Sprite(texture, rectangle), m_hitboxSizes(hitboxSizes) {
     m_hasPhysics = hasPhysics;
     init();
 }

@@ -66,14 +66,17 @@ if (WIN32 AND BUILD_SHARED_LIBS)
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}> COMMAND_EXPAND_LISTS)
 endif()
 
-
-
-if (WIN32)
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-    set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/bin/Debug")
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_directory
                     ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
+
+if (WIN32)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} 
+    			PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+    set_target_properties(
+    	${PROJECT_NAME} PROPERTIES 
+    	VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/bin/Debug"
+    )
 	
 	## Add files into the solution explorer
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)

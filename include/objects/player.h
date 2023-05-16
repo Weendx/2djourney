@@ -3,6 +3,8 @@
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Window/Event.hpp"
 #include "SFML/Graphics/View.hpp"
+#include "box2d/b2_world_callbacks.h"
+#include "box2d/b2_contact.h"
 #include "actor.h"
 #include "objects/map.h"
 
@@ -18,7 +20,8 @@ public:
     void movement(const float& milliseconds);
     void onUpdate(const sf::Time& deltaTime) override;
     void handleEvent(const sf::Event& event) override;
-    bool onGround(const unsigned int screenHeight)const;
+    void addPhysics(b2World* world) override;
+    bool isOnGround();
     void setViewPosition() {
 
     }
@@ -36,7 +39,14 @@ private:
     //sf::RectangleShape m_hitbox;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    sf::RectangleShape* debugRect;
-    sf::RectangleShape* debugRect2;
+    sf::RectangleShape* searchRect;
+    sf::RectangleShape* spriteRect;
 
+    b2ContactListener* m_contactListener = nullptr;
+    int m_contactsCount = 0;
+};
+
+class PlayerContactListener : public b2ContactListener {
+    void BeginContact(b2Contact* contact);
+    void EndContact(b2Contact* contact);
 };

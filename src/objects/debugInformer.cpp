@@ -34,6 +34,8 @@ void DebugInformer::adjustScale(const sf::Vector2f &factors) {
 void DebugInformer::draw(sf::RenderTarget& target, 
         sf::RenderStates states) const {
     target.draw((sf::Text) *m_fpsCounter, states);
+    if (!showDebug)
+        return;
     target.draw((sf::Text) *m_debugTextBlock, states);
 }
 

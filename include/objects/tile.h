@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <string>
 #include "SFML/Graphics/Rect.hpp"
 #include "SFML/Graphics/Sprite.hpp"
@@ -45,6 +46,7 @@ class Tile : public Object, public sf::Sprite {
  private:
     TileType m_type;
     static inline sf::Texture* m_tileSheet;
+    static inline uint32_t m_tilesCount = 0;
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     void loadTexture();
     const sf::IntRect getTileRect(const TileType& type);

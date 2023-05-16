@@ -4,7 +4,7 @@
 #include "box2d/b2_math.h"
 
 namespace {
-    float factor = 24.0;
+    float factor = 24.0 * 3;
     float anglesInRadian = 57.29577;
 }
 

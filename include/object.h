@@ -30,6 +30,7 @@ class Object: public sf::Drawable {
     const bool isItDynamic() const { return m_isDynamic; }
     void setBody(b2Body* body) { m_body = body; }
     b2Body* getBody() const { return m_body; }
+    bool showDebug = false;
  protected:
     std::string m_name;
     Core* m_coreInstance = nullptr;

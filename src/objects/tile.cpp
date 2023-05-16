@@ -14,11 +14,14 @@ Tile::Tile(const TileType& type)
     // setOrigin(tileRect.width / 2.0, tileRect.height / 2.0);
 
     m_isCollide = type != TileType::Empty;
+    ++m_tilesCount;
 }
 
 Tile::~Tile() {
-    if (m_tileSheet)
+    if (m_tilesCount == 1 && m_tileSheet)
         delete m_tileSheet;
+
+    --m_tilesCount;
 }
 
 void Tile::adjustScale(const sf::Vector2f &factors) {

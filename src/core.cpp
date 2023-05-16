@@ -29,7 +29,12 @@ Core::Core()
     m_world.SetGravity(m_gravity);
     m_gameMap->setBottom(m_screenSize.y);
     m_gameMap->setCoreInstance(this);
-    m_gameMap->createTiles();
+    if (m_showDebug) {
+        m_gameMap->showDebug = false;
+        m_debugInformer->showDebug = true;
+    }
+    m_gameMap->init();
+
 
     m_b2DebugFlags += b2Draw::e_shapeBit;
     // m_b2DebugFlags += b2Draw::e_jointBit;
@@ -94,7 +99,8 @@ void Core::process() {
             e->onUpdate(deltaTime);
             window.draw(*e);
         }
-        //m_world.DebugDraw();
+        if (m_showDebug)
+            m_world.DebugDraw();
         window.setView(window.getDefaultView());
         window.draw(*m_debugInformer);
 

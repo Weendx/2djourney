@@ -22,7 +22,7 @@ enum TileType {
     StoneBegin = 'a', Stone1 = 'b', Stone2 = 'c', StoneEnd = 'd',
     StoneSingle = 'e', StonePlatformBegin = 'f', StonePlatformUp = 'g',
     StonePlatformEnd = 'h', StonePlatform1 = 'i', StonePlatform2 = 'j',
-    StoneSlopeUp1 = 'k', StoneSlopeUp2 = 'l', StoneSlopeUp3 = 'm',
+    Spikes = 'k', StoneSlopeUp2 = 'l', StoneSlopeUp3 = 'm',
     StoneSlopeDown3 = 'n', StoneSlopeDown2 = 'o', StoneSlopeDown1 = 'p',
 
     VertStone1 = 'q', VertStone2 = 'r', VertStone3 = 's',
@@ -32,7 +32,7 @@ enum TileType {
 
 std::string tileTypeToString(const TileType& type);
 
-class Tile : public Object, public sf::Sprite {
+class Tile : virtual public Object, public sf::Sprite {
  public:
     explicit Tile(const TileType& type);
     virtual ~Tile();

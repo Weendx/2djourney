@@ -24,3 +24,4 @@ float degToRad(const float& degrees);
 float radToDeg(const float& radians);
 
 std::string to_string_with_precision(const double a_value, const int n = 6);
+std::string secondsToString(const int& seconds);

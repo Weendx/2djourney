@@ -66,10 +66,10 @@ void Map::fillMap() {
     m_currentMapLayout.push_back("0S111111111111111111111111111111111111111111111111111111111111111111111111V");
     m_currentMapLayout.push_back("0T111111111111111111111111111111111111111111111111111111111111111111111111W");
     m_currentMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBC111111111111111111111111111111111CBCRbcbr");
-    m_currentMapLayout.push_back("0000000000000000000000000000000000CBC11111111111111111111111111BCBD0000000r");
+    m_currentMapLayout.push_back("000000000000000000000kk00kkk000000CBC11111111111111111111111111BCBD0000000r");
     m_currentMapLayout.push_back("0000000000000000000000000000000000000BC11111111111111111111BCBC00000000000r");
     m_currentMapLayout.push_back("000000000000000000000000000000000000000BCBC11111111111CBCBC000000000000000r");
-    m_currentMapLayout.push_back("0000000000FIJIJH000000000000000000000000000BCBCBCBCBCB00000000000000000000r");
+    m_currentMapLayout.push_back("0000000000FIJIJH000000000000000000000000000BCBkkCBCBCB00000000000000000000r");
     for (int i = 0; i < 3; ++i)
         m_currentMapLayout.push_back("0");
     for (int i = 0; i < 10; ++i)
@@ -163,7 +163,21 @@ void Map::applyCollision() {
         float shapeLength = 0.0;
         sf::Vector2f lastTileRightCoord;
         sf::Vector2f lastTileBottomCoord;
+        TileType lastTileType;
         for (auto& tile : layer) {
+            if (tile->getType() == TileType::Spikes && vertCount) {
+                vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
+                vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
+                int fixtureId = 99;
+                if (lastTileType == TileType::Spikes)
+                    fixtureId = 12;
+                createColBlock(vertices, vertCount, fixtureId); 
+
+                ++m_surfaceFixturesCount;
+                shapeLength = 0;
+                vertCount = 0;
+            }
+            lastTileType = tile->getType();
             if (tile->hasCollision()) {
                 sf::Vector2f tilePos = tile->getPosition();
                 sf::Vector2f tileSize = tile->getGlobalBounds().getSize();
@@ -183,25 +197,16 @@ void Map::applyCollision() {
                 shapeLength += b2TileSize.x;  // ugrh
             }
             if (!tile->hasCollision() || shapeLength > 7 || \
-                        vertCount + 3 > MAX_VERTICES_AT_ONE_SHAPE) {
+                        vertCount + 3 > MAX_VERTICES_AT_ONE_SHAPE || \
+                        lastTileType == TileType::Spikes) {
                 if (!vertCount)
                     continue;
                 vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
                 vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
-                
-                b2ChainShape shape;
-                shape.CreateLoop(vertices, vertCount);
-
-                b2FixtureDef fixdef;
-                fixdef.shape = &shape;
-                fixdef.density = defaultTileParams.density;
-                fixdef.friction = defaultTileParams.friction;
-                fixdef.restitution = defaultTileParams.restitution;
-                b2FixtureUserData udata;
-                udata.pointer = (uintptr_t) 99;
-                fixdef.userData = udata;
-
-                m_surface->CreateFixture(&fixdef);
+                int fixtureId = 99;
+                if (lastTileType == TileType::Spikes)
+                    fixtureId = 12;
+                createColBlock(vertices, vertCount, fixtureId); 
 
                 ++m_surfaceFixturesCount;
                 shapeLength = 0;
@@ -214,24 +219,35 @@ void Map::applyCollision() {
         vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
         vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
         
-        b2ChainShape shape;
-        shape.CreateLoop(vertices, vertCount);
-
-        b2FixtureDef fixdef;
-        fixdef.shape = &shape;
-        fixdef.density = defaultTileParams.density;
-        fixdef.friction = defaultTileParams.friction;
-        fixdef.restitution = defaultTileParams.restitution;
-        b2FixtureUserData udata;
-        udata.pointer = (uintptr_t) 99;
-        fixdef.userData = udata;
-
-        m_surface->CreateFixture(&fixdef);
-
+        vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
+        vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
+        int fixtureId = 99;
+        if (lastTileType == TileType::Spikes)
+            fixtureId = 12;
+        createColBlock(vertices, vertCount, fixtureId);
         ++m_surfaceFixturesCount;
         shapeLength = 0;
         vertCount = 0;
     }
+}
+
+void Map::createColBlock(const b2Vec2 *vertices, int vertCount, int fixtureId) {
+    if (!vertCount)
+        return;
+    
+    b2ChainShape shape;
+    shape.CreateLoop(vertices, vertCount);
+
+    b2FixtureDef fixdef;
+    fixdef.shape = &shape;
+    fixdef.density = defaultTileParams.density;
+    fixdef.friction = defaultTileParams.friction;
+    fixdef.restitution = defaultTileParams.restitution;
+    b2FixtureUserData udata;
+    udata.pointer = (uintptr_t) fixtureId;
+    fixdef.userData = udata;
+
+    m_surface->CreateFixture(&fixdef);
 }
 
 void Map::createTiles() {

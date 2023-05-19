@@ -7,10 +7,14 @@ DebugInformer::DebugInformer() : m_fps(0.0), m_updateTimer() {
         throw std::runtime_error("Can't load default font");
     m_fpsCounter = new FpsCounter(*m_font, m_textSize);
     m_debugTextBlock = new Text("", *m_font, m_textSize);
+    m_userTextBlock = new Text("", *m_font, m_textSize);
 
     m_fpsCounter->setPosition(m_anchorPos);
-    m_debugTextBlock->setPosition(
-            m_anchorPos.x, m_anchorPos.y + m_textSize + 5);
+    m_textAnchor.x = m_anchorPos.x;
+    m_textAnchor.y = m_anchorPos.y + m_textSize + 5;
+
+    m_debugTextBlock->setPosition(m_textAnchor);
+    m_userTextBlock->setPosition(m_textAnchor);
 }
 
 DebugInformer::~DebugInformer() {
@@ -34,15 +38,20 @@ void DebugInformer::adjustScale(const sf::Vector2f &factors) {
 void DebugInformer::draw(sf::RenderTarget& target, 
         sf::RenderStates states) const {
     target.draw((sf::Text) *m_fpsCounter, states);
+    target.draw((sf::Text) *m_userTextBlock, states);
     if (!showDebug)
         return;
     target.draw((sf::Text) *m_debugTextBlock, states);
 }
 
-void DebugInformer::updateDebugString() {
+void DebugInformer::updateTextStrings() {
     m_debugTextString.clear();
+    m_userTextString.clear();
     for (const auto& [key, value] : m_additionInfo) {
         m_debugTextString += key + ": " + value + '\n';
+    }
+    for (const auto& [key, value] : m_userInfo) {
+        m_userTextString += key + ": " + value + '\n';
     }
 }
 
@@ -53,7 +62,7 @@ void DebugInformer::setFPS(const float& fps) {
 void DebugInformer::addDebugString(
         const std::string& key, const sf::String& text) {
     m_additionInfo[key] = text;
-    updateDebugString();
+    updateTextStrings();
     m_debugTextBlock->setString(m_debugTextString);
 }
 
@@ -62,4 +71,17 @@ void DebugInformer::updateDebugString(
     addDebugString(key, text);
 }
 
+void DebugInformer::updateString(
+        const sf::String &key, const sf::String &text) {
+    m_userInfo[key] = text;
+    updateTextStrings();
+    m_userTextBlock->setString(m_userTextString);
+    adjustDebugBlock();
+}
+
+void DebugInformer::adjustDebugBlock() {
+    auto userTSize = m_userTextBlock->getGlobalBounds().getSize();
+    m_debugTextBlock->setPosition(m_textAnchor.x, 
+            m_textAnchor.y + userTSize.y + 5);
+}
 

@@ -122,8 +122,8 @@ const sf::IntRect Tile::getTileRect(const TileType& type) {
             return sf::IntRect(288, 240, w, h);
         case StonePlatform2:
             return sf::IntRect(312, 240, w, h);
-        case StoneSlopeUp1:
-            return sf::IntRect(0, 144, w, h);
+        case Spikes:
+            return sf::IntRect(24, 48, w, h);
         case StoneSlopeUp2:
             return sf::IntRect(0, 120, w, h);
         case StoneSlopeUp3:
@@ -228,8 +228,8 @@ std::string tileTypeToString(const TileType& type) {
             return "StonePlatform1";
         case StonePlatform2:
             return "StonePlatform2";
-        case StoneSlopeUp1:
-            return "StoneSlopeUp1";
+        case Spikes:
+            return "Spikes";
         case StoneSlopeUp2:
             return "StoneSlopeUp2";
         case StoneSlopeUp3:

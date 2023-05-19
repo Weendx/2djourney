@@ -32,6 +32,10 @@ set(OBJECTS_SRC
 	${inc_dir}/${obj_dir}/tile.h
 	${src_dir}/${obj_dir}/map.cpp
 	${inc_dir}/${obj_dir}/map.h
+	${src_dir}/${obj_dir}/pauseScreen.cpp
+	${inc_dir}/${obj_dir}/pauseScreen.h
+	${src_dir}/${obj_dir}/background.cpp
+	${inc_dir}/${obj_dir}/background.h
 )
 # message(NOTICE "${MAIN_SRC}")
 

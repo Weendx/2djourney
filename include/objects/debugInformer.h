@@ -9,7 +9,7 @@
 
 class Text;
 
-class DebugInformer : public Object {
+class DebugInformer : virtual public Object {
  public:
     DebugInformer();
     ~DebugInformer();
@@ -21,10 +21,12 @@ class DebugInformer : public Object {
     void setFPS(const float& fps);
     void addDebugString(const std::string& key, const sf::String& text);
     void updateDebugString(const std::string& key, const sf::String& text);
+    void updateString(const sf::String& key, const sf::String& text);
 
  private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-    void updateDebugString();
+    void updateTextStrings();
+    void adjustDebugBlock();
 
     sf::Font* m_font;
     sf::Clock m_updateTimer;
@@ -32,9 +34,13 @@ class DebugInformer : public Object {
     float m_fps;
 
     Text* m_debugTextBlock;
+    Text* m_userTextBlock;
     sf::String m_debugTextString;
+    sf::String m_userTextString;
     std::map<std::string, sf::String> m_additionInfo;
+    std::map<sf::String, sf::String> m_userInfo;
 
     const unsigned int m_textSize = 15;
-    const sf::Vector2f m_anchorPos {5, 0};
+    const sf::Vector2f m_anchorPos {5, 0};  // global
+    sf::Vector2f m_textAnchor;  // for debug & user Text*
 };

@@ -45,3 +45,19 @@ std::string to_string_with_precision(const double a_value, const int n) {
     out << std::fixed << a_value;
     return std::move(out).str();
 }
+
+std::string secondsToString(const int &seconds) {
+    std::ostringstream out;
+    int time[3];
+    time[0] = seconds / 3600;
+    time[1] = (seconds % 3600) / 60;
+    time[2] = seconds % 60;
+    for (int i = 0; i < 3; ++i) {
+        out.width(2);
+        out.fill('0');
+        out << time[i];
+        if (i != 2)
+            out << ":";
+    }
+    return std::move(out).str();
+}

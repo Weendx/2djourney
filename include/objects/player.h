@@ -19,13 +19,16 @@ class Player : public Actor {
     ~Player();
     void movement(const float& milliseconds);
     void onUpdate(const sf::Time& deltaTime) override;
+    void onRestart() override;
     void handleEvent(const sf::Event& event) override;
     void addPhysics(b2World* world) override;
     bool isOnGround();
+    void setStartPoint(const sf::Vector2f& pixelCoords);
+    void setStartPoint(const b2Vec2& worldCoords);
     void setViewPosition() {}
 
  private:
-    const Map* m_gameMap;
+    sf::Vector2f m_startPoint;
     // const std::vector<Tile*> m_tiles;
 
     // Physics
@@ -42,7 +45,6 @@ class Player : public Actor {
     sf::RectangleShape* spriteRect;
 
     b2ContactListener* m_contactListener = nullptr;
-    int m_contactsCount = 0;
 };
 
 class PlayerContactListener : public b2ContactListener {

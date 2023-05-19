@@ -22,6 +22,7 @@ class Object: public sf::Drawable {
     virtual void adjustScale(const sf::Vector2f &factors) = 0;
     virtual operator std::string() const = 0;
     virtual void onUpdate(const sf::Time &deltaTime) = 0;
+    virtual void onRestart() {}
     virtual void handleEvent(const sf::Event &event) = 0;
     virtual sf::Vector2f getHitBoxSize();
     virtual void addPhysics(b2World* world) {}

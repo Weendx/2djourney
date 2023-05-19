@@ -35,7 +35,7 @@ struct TileDef {
     float restitution;
 };
 
-class Map : public Object {
+class Map : virtual public Object {
  public:
     Map();
     explicit Map(const int& bottom);
@@ -68,6 +68,7 @@ class Map : public Object {
 
     sf::Vector2f getTileIdAt(const float& pixels_x, const float& pixels_y);
     void applyCollision();
+    void createColBlock(const b2Vec2 *vertices, int count, int fixtureId);
 
     sf::Vector2f m_startPoint;
     sf::Vector2f m_scale {1.56, 1.56};

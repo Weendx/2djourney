@@ -20,6 +20,7 @@
 
 namespace {
 int contactsCount = 0;
+bool isDied = false;
 }
 
 Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle,
@@ -103,6 +104,9 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 
 void Player::onUpdate(const sf::Time &deltaTime) {
+    if (m_coreInstance && isDied)
+        m_coreInstance->restartGame();
+
     movement(deltaTime.asMilliseconds());
     this->move(m_velocity);
     b2Vec2 vel;
@@ -110,7 +114,7 @@ void Player::onUpdate(const sf::Time &deltaTime) {
     vel.Set(m_velocity.x * scale, m_velocity.y * scale);
     // Добавить всем этим штукам (см 6.f и в прыжке и m_velocity) 
     // связь с coordPixelsToWorld
-    if (std::abs(m_body->GetLinearVelocity().x) < 6.f) {
+    if (std::abs(m_body->GetLinearVelocity().x) < 6.f || !isOnGround()) {
         m_body->ApplyForceToCenter(vel, true);
     }
 
@@ -126,6 +130,14 @@ void Player::onUpdate(const sf::Time &deltaTime) {
     if (m_coreInstance) {
         m_coreInstance->setPlayerCoords(getPosition());
     }
+}
+
+void Player::onRestart() {
+    m_velocity = {0, 0};
+    setPosition(m_startPoint);
+    m_body->SetTransform(coordPixelsToWorld(m_startPoint), 0);
+    m_body->SetLinearVelocity({0, 0});
+    isDied = false;
 }
 
 void Player::handleEvent(const sf::Event &event) {}
@@ -173,6 +185,14 @@ void Player::addPhysics(b2World* world) {
     this->setBody(body);
 }
 
+void Player::setStartPoint(const sf::Vector2f& coords) {
+    m_startPoint = coords;
+}
+void Player::setStartPoint(const b2Vec2& coords) {
+    m_startPoint = coordWorldToPixels(coords);
+}
+
+
 void PlayerContactListener::BeginContact(b2Contact* contact) {
     b2FixtureUserData& fixtureData1 = contact->GetFixtureA()->GetUserData();
     b2FixtureUserData& fixtureData2 = contact->GetFixtureB()->GetUserData();
@@ -182,6 +202,8 @@ void PlayerContactListener::BeginContact(b2Contact* contact) {
         return;
     if (fixtureId1 == 99 && fixtureId2 == 10)
         ++contactsCount;
+    if (fixtureId1 == 12)
+        isDied = true;        
 }
 void PlayerContactListener::EndContact(b2Contact* contact) {
     b2FixtureUserData& fixtureData1 = contact->GetFixtureA()->GetUserData();

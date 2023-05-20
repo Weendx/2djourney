@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     if (!playerSheet.loadFromFile("resources/drawable/playerSheet.png"))
         throw std::runtime_error("Can't load player sprites");
     Player* playerIdle1 = new Player(playerSheet,
-        sf::IntRect(0, 0, 50, 37), sf::Vector2f(22, 32));
+        sf::IntRect(0, 0, 50, 40    ), sf::Vector2f(22, 32));
 
     sf::Vector2f playerStartPos = core.getMap()->getUpperPoint();
     playerStartPos.y -= 44;

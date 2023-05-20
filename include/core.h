@@ -65,7 +65,7 @@ class Core {
     void setScale(const sf::Vector2f &newScale);
     void setScale(const float &factorX, const float &factorY);
     b2World m_world;
-    b2Vec2 m_gravity{ 0.0f, 10.0f };
+    b2Vec2 m_gravity{ 0.0f, 20.0f };
 
     sf::Vector2f playerCoords;
 

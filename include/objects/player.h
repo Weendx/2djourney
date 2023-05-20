@@ -3,6 +3,7 @@
 #include "SFML/System/Vector2.hpp"
 #include "SFML/Window/Event.hpp"
 #include "SFML/Graphics/View.hpp"
+#include "SFML/System/Clock.hpp"
 #include "box2d/b2_world_callbacks.h"
 #include "box2d/b2_contact.h"
 #include "actor.h"
@@ -12,12 +13,16 @@ namespace sf {
 class RectangleShape;
 }
 
+enum PlayerStates {IDLE = 0, MOVING_LEFT, MOVING_RIGHT, JUMPING_LEFT,JUMPING_RIGHT, FALLING_LEFT, FALLING_RIGHT};
+enum LastDirection {LEFT = 0, RIGHT};
+
 class Player : public Actor {
  public:
     Player(const sf::Texture& texture, const sf::IntRect& rectangle,
                             const sf::Vector2f& hitboxSizes = sf::Vector2f());
     ~Player();
-    void movement(const float& milliseconds);
+    void updateMovement(const float& milliseconds);
+    void updateAnimations();
     void onUpdate(const sf::Time& deltaTime) override;
     void onRestart() override;
     void handleEvent(const sf::Event& event) override;
@@ -26,19 +31,21 @@ class Player : public Actor {
     void setStartPoint(const sf::Vector2f& pixelCoords);
     void setStartPoint(const b2Vec2& worldCoords);
     void setViewPosition() {}
-
  private:
     sf::Vector2f m_startPoint;
-    // const std::vector<Tile*> m_tiles;
+
+    sf::Event m_event;
+
+    //Animation
+    sf::Clock m_animationTimer;
+    short m_state;
+    short m_lastDirection;
+    sf::IntRect m_currentFrame;
+    bool animationSwitch;
 
     // Physics
-    const float m_moveSpeed = 1.0;
+    const float m_moveSpeed = 0.01;
     sf::Vector2f m_velocity;
-    const float m_gravitySpeed = 10.0;
-    const float m_accelerationY = 1.0;
-    bool m_isJumping = false;
-    sf::FloatRect m_nextPos;
-    // sf::RectangleShape m_hitbox;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     sf::RectangleShape* searchRect;

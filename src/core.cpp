@@ -55,10 +55,10 @@ Core::Core()
     m_playTime = sf::Clock();
     m_background = new Background(this);
 
-    m_b2DebugFlags += b2Draw::e_shapeBit;
-    // m_b2DebugFlags += b2Draw::e_jointBit;
-    // m_b2DebugFlags += b2Draw::e_pairBit;
-    // m_b2DebugFlags += b2Draw::e_centerOfMassBit;
+    //m_b2DebugFlags += b2Draw::e_shapeBit;
+    //m_b2DebugFlags += b2Draw::e_jointBit;
+    //m_b2DebugFlags += b2Draw::e_pairBit;
+    //m_b2DebugFlags += b2Draw::e_centerOfMassBit;
 }
 
 Core::~Core() {
@@ -109,7 +109,7 @@ void Core::process() {
         float elapsedTime = m_playTime.getElapsedTime().asSeconds();
         sf::String elapsed = secondsToString(elapsedTime);
         if (!m_isPaused)
-            m_debugInformer->updateString(L"Продолжительность игры", elapsed);
+            m_debugInformer->updateString(L"\u0412\u0440\u0435\u043c\u044f\u0020\u0438\u0433\u0440\u044b", elapsed);
 
         updateView(&view, playerCoords);
         window.setView(view);

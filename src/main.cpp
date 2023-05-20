@@ -8,9 +8,15 @@
 #include "objects/fpsCounter.h"
 #include "objects/pauseScreen.h"
 
+#include "generator.h"
+
 // marks:
 // https://itecnote.com/tecnote/c-shapes-proportionally-resize-with-window-in-sfml-2-x/
-
+int main2() {
+    Generator gen;
+    gen.test();
+    return 0;
+}
 int main(int argc, char* argv[]) {
     Core core;
     
@@ -20,7 +26,8 @@ int main(int argc, char* argv[]) {
     Player* playerIdle1 = new Player(playerSheet,
         sf::IntRect(0, 0, 50, 37), sf::Vector2f(22, 32));
 
-    sf::Vector2f playerStartPos(100, 100);
+    sf::Vector2f playerStartPos = core.getMap()->getUpperPoint();
+    playerStartPos.y -= 44;
     playerIdle1->setStartPoint(playerStartPos);
     playerIdle1->setPosition(playerStartPos);
     core.registerObject(playerIdle1);
@@ -28,4 +35,5 @@ int main(int argc, char* argv[]) {
 
     core.process();
     delete playerIdle1;
+    return 0;
 }

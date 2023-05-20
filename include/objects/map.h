@@ -51,6 +51,9 @@ class Map : virtual public Object {
     bool checkGroundAt(const b2Vec2& worldCoords) const;
     TileType getTileTypeAt(const sf::Vector2f& coords) const;
 
+    void setMapLayout(const std::vector<std::string>& layout);
+    sf::Vector2f getUpperPoint() const;
+
  private:
     std::vector<std::string> m_currentMapLayout;
     std::vector< std::vector<Tile*> > m_layers;

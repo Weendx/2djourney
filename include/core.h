@@ -71,7 +71,7 @@ class Core {
 
     uint32 m_b2DebugFlags;
 
-    bool m_showDebug = false;
+    bool m_showDebug = true;
     bool m_isPaused = true;
     
     sf::Sprite* m_bg[3];

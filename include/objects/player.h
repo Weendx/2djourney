@@ -41,11 +41,6 @@ class Player : public Actor {
     short m_state;
     short m_lastDirection;
     sf::IntRect m_currentFrame;
-    bool animationSwitch;
-
-    // Physics
-    const float m_moveSpeed = 0.01;
-    sf::Vector2f m_velocity;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
     sf::RectangleShape* searchRect;

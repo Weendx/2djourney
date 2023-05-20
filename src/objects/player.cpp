@@ -25,7 +25,7 @@ bool isDied = false;
 
 Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle,
                                                 const sf::Vector2f& hitbox)
-        : Actor(texture, rectangle, hitbox), m_velocity(0.0, 0.0),
+        : Actor(texture, rectangle, hitbox),
           m_state(IDLE), m_currentFrame(sf::IntRect(0,0,50,35)) { 
     setName("Player"); 
     adjustScale({2.2, 2.2});
@@ -57,15 +57,18 @@ Player::~Player() {
 
 void Player::updateMovement(const float& milliseconds) {
     sf::Vector2f newPos = getPosition();
-    m_velocity.x = m_velocity.y = 0.0;
     m_state = IDLE;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
-        m_velocity.x += -m_moveSpeed * milliseconds;
+    
+    b2Vec2 curVel;
+    curVel.Set(m_body->GetLinearVelocity().x, m_body->GetLinearVelocity().y);
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {;
+        m_body->SetLinearVelocity(b2Vec2(-6.0, curVel.y));
         m_lastDirection = LEFT;
         m_state = MOVING_LEFT;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
-        m_velocity.x += m_moveSpeed * milliseconds;
+        m_body->SetLinearVelocity(b2Vec2(6.0, curVel.y));
         m_lastDirection = RIGHT;
         m_state = MOVING_RIGHT;
     }
@@ -104,7 +107,6 @@ void Player::updateAnimations() {
                 m_state = FALLING_RIGHT;
         }
     }
-    
 
     if (m_state == IDLE && this->isOnGround()) {
         if (m_animationTimer.getElapsedTime().asSeconds() >= 0.2f) {
@@ -216,20 +218,10 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 void Player::onUpdate(const sf::Time &deltaTime) {
     if (m_coreInstance && isDied)
         m_coreInstance->restartGame();
+
     updateMovement(deltaTime.asMilliseconds());
     updateAnimations();
     handleEvent(m_event);
-    b2Vec2 vel;
-    b2Vec2 curVel;
-    int scale = 1;
-    vel.Set(m_velocity.x * scale, m_velocity.y * scale);
-    curVel.Set(m_body->GetLinearVelocity().x, m_body->GetLinearVelocity().y);
-    // Добавить всем этим штукам (см 6.f и в прыжке и m_velocity) 
-    // связь с coordPixelsToWorld
-    if (std::abs(m_body->GetLinearVelocity().x) > 6.f)
-        m_body->SetLinearVelocity(curVel);
-    else
-        m_body->ApplyLinearImpulseToCenter(vel, true);
 
     auto newWorldPos = m_body->GetPosition();
     this->setPosition(coordWorldToPixels(newWorldPos));
@@ -247,7 +239,7 @@ void Player::onUpdate(const sf::Time &deltaTime) {
 }
 
 void Player::onRestart() {
-    m_velocity = {0, 0};
+    m_body->SetLinearVelocity(b2Vec2(0.0, 0.0));
     setPosition(m_startPoint);
     m_body->SetTransform(coordPixelsToWorld(m_startPoint), 0);
     m_body->SetLinearVelocity({0, 0});

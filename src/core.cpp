@@ -26,19 +26,25 @@
 #include "objects/tile.h"
 #include "b2DebugDraw.h"
 #include "utils.h"
+#include "generator.h"
 
 
 Core::Core() 
     : m_scale(sf::Vector2f(1.0, 1.0)), m_fps(0.0),
         m_debugInformer(new DebugInformer()), m_gameMap(new Map()),
             m_screenSize(1280, 720), m_world(m_gravity), m_defaultFont() {
+    Generator gen;
+
     m_world.SetGravity(m_gravity);
     m_gameMap->setBottom(m_screenSize.y);
     m_gameMap->setCoreInstance(this);
     if (m_showDebug) {
-        m_gameMap->showDebug = false;
+        m_gameMap->showDebug = true;
         m_debugInformer->showDebug = true;
     }
+    auto gr = gen.randomWalkTop(60, 20, 12384, 0, 3, 6);
+    std::vector<std::string> mapLayout = gen.to_string(gr);
+    m_gameMap->setMapLayout(mapLayout);
     m_gameMap->init();
 
     m_defaultFont = new sf::Font();

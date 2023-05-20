@@ -59,17 +59,17 @@ void Map::adjustScale(const sf::Vector2f &factors) {
 void Map::fillMap() {
     m_currentMapLayout.push_back("0");
     m_currentMapLayout.push_back("0");
-    m_currentMapLayout.push_back("0UYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZX");
-    m_currentMapLayout.push_back("0T111111111111111111111111111111111111111111111111111111111111111111111111W");
-    m_currentMapLayout.push_back("0S111111111111111111111111111111111111111111111111111111111111111111111111V");
-    m_currentMapLayout.push_back("0T111111111111111111111111111111111111111111111111111111111111111111111111W");
-    m_currentMapLayout.push_back("0S111111111111111111111111111111111111111111111111111111111111111111111111V");
-    m_currentMapLayout.push_back("0T111111111111111111111111111111111111111111111111111111111111111111111111W");
-    m_currentMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBC111111111111111111111111111111111CBCRbcbr");
-    m_currentMapLayout.push_back("000000000000000000000kk00kkk000000CBC11111111111111111111111111BCBD0000000r");
-    m_currentMapLayout.push_back("0000000000000000000000000000000000000BC11111111111111111111BCBC00000000000r");
-    m_currentMapLayout.push_back("000000000000000000000000000000000000000BCBC11111111111CBCBC000000000000000r");
-    m_currentMapLayout.push_back("0000000000FIJIJH000000000000000000000000000BCBkkCBCBCB00000000000000000000r");
+    m_currentMapLayout.push_back("0UYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZX");
+    m_currentMapLayout.push_back("0T1111111111111111111111111111111111111111W");
+    m_currentMapLayout.push_back("0S1111111111111111111111111111111111111111V");
+    m_currentMapLayout.push_back("0T1111111111111111111111111111111111111111W");
+    m_currentMapLayout.push_back("0S1111111111111111111111111111111111111111V");
+    m_currentMapLayout.push_back("0T1111111111111111111111111111111111111111W");
+    m_currentMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBC11111111r");
+    m_currentMapLayout.push_back("000000000000000000000kk00kkk000000CBC11111r");
+    m_currentMapLayout.push_back("0000000000000000000000000000000000000BC111r");
+    m_currentMapLayout.push_back("000000000000000000000000000000000000000BCBr");
+    m_currentMapLayout.push_back("0000000000FIJIJH00000000000000000000000000r");
     for (int i = 0; i < 3; ++i)
         m_currentMapLayout.push_back("0");
     for (int i = 0; i < 10; ++i)
@@ -309,6 +309,28 @@ TileType Map::getTileTypeAt(const sf::Vector2f& coords) const {
         }
     }
     return TileType::Empty;
+}
+
+void Map::setMapLayout(const std::vector<std::string> &layout) {
+    m_currentMapLayout = layout;
+}
+
+sf::Vector2f Map::getUpperPoint() const {
+    int lastLayerId = m_layers.size() - 1;
+    if (lastLayerId == -1)
+        throw std::logic_error("Map::getUpperPoint(): Tiles vector is empty");
+    sf::Vector2f tilePos;
+    for (int y = m_layers.size() - 1; y >= 0; --y) {
+        if (m_layers[y][0]->getType() == Empty)
+            continue;
+        for (int x = 0; x < m_layers[lastLayerId].size(); ++x) {
+            if (m_layers[y][x]->getType() == Spikes)
+                continue;
+            tilePos = m_layers[y][x]->getPosition();
+            return sf::Vector2f(tilePos.x + 14.f, tilePos.y);
+        }
+    }
+    return sf::Vector2f(tilePos.x + 14.f, tilePos.y);
 }
 
 void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {

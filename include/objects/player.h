@@ -31,14 +31,12 @@ class Player : public Actor {
     void setStartPoint(const sf::Vector2f& pixelCoords);
     void setStartPoint(const b2Vec2& worldCoords);
     void setViewPosition() {}
-    void setPlayerSheet();
  private:
     sf::Vector2f m_startPoint;
 
     sf::Event m_event;
 
     //Animation
-    sf::Texture m_playerSheet;
     sf::Clock m_animationTimer;
     short m_state;
     short m_lastDirection;

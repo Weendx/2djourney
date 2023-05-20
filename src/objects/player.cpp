@@ -29,7 +29,6 @@ Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle,
           m_state(IDLE), m_currentFrame(sf::IntRect(0,0,50,35)) { 
     setName("Player"); 
     adjustScale({2.2, 2.2});
-    setPlayerSheet();
     m_animationTimer.restart();
     sf::Vector2f playerSize = this->getGlobalBounds().getSize();
     // this->setOrigin(playerSize.x / 2, playerSize.y / 2);
@@ -71,7 +70,7 @@ void Player::updateMovement(const float& milliseconds) {
         m_state = MOVING_RIGHT;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && isOnGround()) {
-        b2Vec2 vel(0, -2.2f);
+        b2Vec2 vel(0, -2.4f);
         m_body->ApplyLinearImpulseToCenter(vel, true);
         }
 
@@ -203,10 +202,7 @@ void Player::updateAnimations() {
     }
 }
 
-void Player::setPlayerSheet() {
-    if (!m_playerSheet.loadFromFile("resources/drawable/playerSheet.png"))
-        throw std::runtime_error("Can't load player sprites");
-}
+
 
 void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw((sf::Sprite) *this, states);
@@ -318,7 +314,7 @@ void Player::addPhysics(b2World* world) {
     ps.SetAsBox(spikeSensorSize.x, spikeSensorSize.y, b2Vec2(0, hitboxsizes.y / 2.0f), 0);
     fd.isSensor = true;
     b2FixtureUserData udata2;
-    udata2.pointer = (uintptr_t)20;
+    udata2.pointer = (uintptr_t) 20;
     fd.userData = udata2;
     
     body->CreateFixture(&fd);

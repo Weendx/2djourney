@@ -19,7 +19,6 @@ class PauseScreen : virtual public Object {
     void onRestart() override;
     void handleEvent(const sf::Event &event) override;
     void setActive();
-
  private:
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
     sf::RectangleShape* m_bg;
@@ -27,4 +26,5 @@ class PauseScreen : virtual public Object {
     sf::Vector2f m_scale;
 
     bool m_isActive;
+
 };

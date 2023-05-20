@@ -71,7 +71,7 @@ void Actor::addPhysics(b2World* world) {
     fd.shape = &ps;
 
     fd.density = 1;
-    fd.friction = 50;
+    fd.friction = 1;
     fd.restitution = 0;
 
     body->CreateFixture(&fd);

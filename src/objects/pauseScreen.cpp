@@ -11,6 +11,7 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/System/String.hpp>
+#include <SFML/System/String.hpp>
 
 #include "text.h"
 #include "core.h"
@@ -18,7 +19,8 @@
 PauseScreen::PauseScreen(Core* coreInstance, const sf::Font& font) 
         : m_bg(new sf::RectangleShape()), m_isActive(true), m_scale(1, 1) {
     setCoreInstance(coreInstance);
-    sf::String desctext(L"Для продолжения нажмите клавишу...");
+    std::wstring sometext = L"\u0414\u043b\u044f\u0020\u043f\u0440\u043e\u0434\u043e\u043b\u0436\u0435\u043d\u0438\u044f\u0020\u043d\u0430\u0436\u043c\u0438\u0442\u0435\u0020\u043a\u043b\u0430\u0432\u0438\u0448\u0443\u002e\u002e\u002e      ";
+    sf::String desctext(sometext);
     m_descText = new Text(desctext, font, 30);
 
     sf::Vector2f windowSize = m_coreInstance->getWindowSize();
@@ -66,7 +68,7 @@ void PauseScreen::handleEvent(const sf::Event &event) {
         if (m_isActive) {
             m_coreInstance->unsetPause();
             m_isActive = false;
-        } else if (event.key.code == sf::Keyboard::Pause) {
+        } else if (event.key.code == sf::Keyboard::P) {
             m_isActive = true;
             m_coreInstance->setPause();
         }

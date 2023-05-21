@@ -239,6 +239,7 @@ void Player::onUpdate(const sf::Time &deltaTime) {
     this->setPosition(coordWorldToPixels(newWorldPos));
     this->setRotation(radToDeg(m_body->GetAngle()));
     
+    if (m_body->GetPosition().y > 10.0) isDied = true;
 
     if (m_coreInstance) {
         m_coreInstance->debug()->updateDebugString("Player World Pos",
@@ -272,9 +273,11 @@ void Player::onRestart() {
     m_body->SetLinearVelocity(b2Vec2(0.0, 0.0));
     setPosition(m_startPoint);
     m_body->SetTransform(coordPixelsToWorld(m_startPoint), 0);
+
     m_body->SetLinearVelocity({0, 0});
     if (isDied)
         m_coreInstance->changeScore(-50);
+
     isDied = false;
     isToGenerateMap = false;
     lastMapCheckpoint = nullptr;
@@ -295,6 +298,10 @@ void Player::handleEvent(const sf::Event& event) {
         }
         if (event.key.code == sf::Keyboard::D) {
             curVel.x = 0.f;
+            m_body->SetLinearVelocity(curVel);
+        }
+        if (event.key.code == sf::Keyboard::Space) {
+            if (curVel.y < 0) curVel.y = -4.f;
             m_body->SetLinearVelocity(curVel);
         }
     }

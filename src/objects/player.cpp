@@ -73,8 +73,7 @@ void Player::updateMovement(const float& milliseconds) {
         m_state = MOVING_RIGHT;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && isOnGround()) {
-        b2Vec2 vel(0, -2.4f);
-        m_body->ApplyLinearImpulseToCenter(vel, true);
+        m_body->SetLinearVelocity(b2Vec2(curVel.x, -10.0));
         }
 
     if (m_coreInstance) {
@@ -227,6 +226,7 @@ void Player::onUpdate(const sf::Time &deltaTime) {
     this->setPosition(coordWorldToPixels(newWorldPos));
     this->setRotation(radToDeg(m_body->GetAngle()));
     
+    if (m_body->GetPosition().y > 10.0) isDied = true;
 
     if (m_coreInstance) {
         m_coreInstance->debug()->updateDebugString("Player World Pos",
@@ -242,7 +242,7 @@ void Player::onRestart() {
     m_body->SetLinearVelocity(b2Vec2(0.0, 0.0));
     setPosition(m_startPoint);
     m_body->SetTransform(coordPixelsToWorld(m_startPoint), 0);
-    m_body->SetLinearVelocity({0, 0});
+    //m_body->SetLinearVelocity({0, 0});
     isDied = false;
 }
 
@@ -256,6 +256,10 @@ void Player::handleEvent(const sf::Event& event) {
         }
         if (event.key.code == sf::Keyboard::D) {
             curVel.x = 0.f;
+            m_body->SetLinearVelocity(curVel);
+        }
+        if (event.key.code == sf::Keyboard::Space) {
+            if (curVel.y < 0) curVel.y = -4.f;
             m_body->SetLinearVelocity(curVel);
         }
     }

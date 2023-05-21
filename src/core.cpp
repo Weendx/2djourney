@@ -183,7 +183,9 @@ void Core::updateScale() {
 }
 
 sf::View* Core::updateView(sf::View* view, const sf::Vector2f& playerCoords) {
-    view->setCenter(playerCoords);
+    sf::Vector2f newViewCoords(playerCoords);
+    newViewCoords.y -= 100.f;
+    view->setCenter(newViewCoords);
     return view;
 }
 

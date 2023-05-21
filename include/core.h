@@ -20,6 +20,7 @@
 
 class PauseScreen;
 class Background;
+class Generator;
 
 class Core {
  public:
@@ -39,13 +40,18 @@ class Core {
     sf::Vector2f getWindowSize() const { return m_screenSize; }
 
     const Map* getMap() const { return m_gameMap; }
+    Map* getMap() { return m_gameMap; }
     DebugInformer* debug() const { return m_debugInformer; }
-    b2World* getWorld() { return &m_world; }
-    const b2World* getWorld() const { return &m_world; }  // ?
+    b2World* getWorld() { return m_world; }
+    const b2World* getWorld() const { return m_world; }  // ?
+    bool isPaused() const { return m_isPaused; }
 
-    void setPause();
+    void setPause(sf::String text = "");
     void unsetPause();
     void restartGame();
+    void nextLevel();
+    void changeScore(const int& delta);
+    void generateMap(const bool& generateNew = false);
 
  private:
     void close();
@@ -54,6 +60,8 @@ class Core {
     PauseScreen* m_pauseScreen;
     Background* m_background;
     sf::Font* m_defaultFont;
+    Generator* m_generator;
+    b2World* m_world;
     Map* m_gameMap;
 
     std::vector<Object*> m_objects;
@@ -64,7 +72,6 @@ class Core {
 
     void setScale(const sf::Vector2f &newScale);
     void setScale(const float &factorX, const float &factorY);
-    b2World m_world;
     b2Vec2 m_gravity{ 0.0f, 20.0f };
 
     sf::Vector2f playerCoords;
@@ -74,7 +81,9 @@ class Core {
     bool m_showDebug = false;
     bool m_isPaused = true;
     
-    sf::Sprite* m_bg[3];
     sf::Clock m_playTime;
+    int m_gameScore = 0;
+
+    int m_mapSeed;
 };
 

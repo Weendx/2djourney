@@ -25,12 +25,14 @@ class Player : public Actor {
     void updateAnimations();
     void onUpdate(const sf::Time& deltaTime) override;
     void onRestart() override;
+    void onNextLevel() override;
     void handleEvent(const sf::Event& event) override;
     void addPhysics(b2World* world) override;
     bool isOnGround();
     void setStartPoint(const sf::Vector2f& pixelCoords);
     void setStartPoint(const b2Vec2& worldCoords);
     void setViewPosition() {}
+
  private:
     sf::Vector2f m_startPoint;
 

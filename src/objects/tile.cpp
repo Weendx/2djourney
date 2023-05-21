@@ -1,27 +1,40 @@
 #include <cstdint>
+#include <cstdlib>
 #include <stdexcept>
 #include <string>
+#include <SFML/System/Clock.hpp>
 #include "objects/tile.h"
 
 Tile::Tile(const TileType& type) 
-    : m_type(type), sf::Sprite() {
+    : m_type(type), sf::Sprite(), m_animClock(nullptr), m_animPhase(0) {
     loadTexture();
     if (!m_tileSheet)
         throw std::runtime_error("Tile textures aren't loaded");
     setTexture(*m_tileSheet);
     auto tileRect = getTileRect(type);
     setTextureRect(tileRect);
+    m_class = getTileClass(type);
     // setOrigin(tileRect.width / 2.0, tileRect.height / 2.0);
 
-    m_isCollide = type != TileType::Empty;
+    m_isCollide = type != TileType::Empty && type != Spikes && type != Coin;
     ++m_tilesCount;
+    if (type == Coin) {
+        m_animClock = new sf::Clock();
+        m_frameTime = (std::rand() % 6) / 100.0 + 0.12;
+        m_animPhase = std::rand() % 5;
+    }
 }
 
 Tile::~Tile() {
-    if (m_tilesCount == 1 && m_tileSheet)
+    if (m_tilesCount == 1 && m_tileSheet) {
         delete m_tileSheet;
+        m_tileSheet = nullptr;
+        --m_tilesCount;
+    }
 
     --m_tilesCount;
+    if (m_animClock)
+        delete m_animClock;
 }
 
 void Tile::adjustScale(const sf::Vector2f &factors) {
@@ -30,6 +43,21 @@ void Tile::adjustScale(const sf::Vector2f &factors) {
     tmpScale.x *= factors.x;
     tmpScale.y *= factors.y;
     this->setScale(tmpScale);
+}
+
+void Tile::onUpdate(const sf::Time &deltaTime) {
+    if (m_type != Coin)
+        return;
+    float dt = m_animClock->getElapsedTime().asSeconds();
+    if (dt < m_frameTime)
+        return;
+    sf::IntRect spritePos = this->getTileRect(m_type);
+    spritePos.left += 24 * m_animPhase;
+    this->setTextureRect(spritePos);
+    ++m_animPhase;
+    m_animClock->restart();
+    if (m_animPhase >= 5)  // 5 - animId
+        m_animPhase = 0;
 }
 
 void Tile::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -47,7 +75,7 @@ sf::Vector2f Tile::getHitboxSize() const {
     return getGlobalBounds().getSize();
 }
 
-const sf::IntRect Tile::getTileRect(const TileType& type) {
+const sf::IntRect Tile::getTileRect(const TileType& type) const {
     int8_t w = 24, h = 24;
     switch (type) {
         case GrassBegin:
@@ -132,8 +160,8 @@ const sf::IntRect Tile::getTileRect(const TileType& type) {
             return sf::IntRect(48, 120, w, h);
         case StoneSlopeDown2:
             return sf::IntRect(72, 120, w, h);
-        case StoneSlopeDown1:
-            return sf::IntRect(72, 144, w, h);
+        case Coin:
+            return sf::IntRect(216, 276, w, h);
         case VertStone1:
             return sf::IntRect(144, 120, w, h);
         case VertStone2:
@@ -146,6 +174,70 @@ const sf::IntRect Tile::getTileRect(const TileType& type) {
             return sf::IntRect(48, 24, w, h);
     }
     throw std::invalid_argument("Invalid tile type");
+}
+
+TileClass Tile::getTileClass(const TileType& type) const {
+    switch (type) {
+        case GrassBegin:
+        case Grass1:
+        case Grass2:
+        case GrassEnd:
+        case GrassSingle:
+        case GrassPlatformBegin:
+        case GrassPlatformUp:
+        case GrassPlatformEnd:
+        case GrassPlatform1:
+        case GrassPlatform2:
+        case GrassSlopeUp1:
+        case GrassSlopeUp2:
+        case GrassSlopeUp3:
+        case GrassSlopeDown3:
+        case GrassSlopeDown2:
+        case GrassSlopeDown1:
+            return Grass;
+        case StoneToGrass:
+            return Stone;
+        case GrassToStone:
+            return Grass;
+        case SideLeft1:
+        case SideLeft2:
+        case SideLeft3:
+        case SideRight1:
+        case SideRight2:
+        case SideRight3:
+        case GroundNStone1:
+        case GroundNStone2:
+            return Wall;
+        case StoneBegin:
+        case Stone1:
+        case Stone2:
+        case StoneEnd:
+        case StoneSingle:
+        case StonePlatformBegin:
+        case StonePlatformUp:
+        case StonePlatformEnd:
+        case StonePlatform1:
+        case StonePlatform2:
+            return Stone;
+        case Spikes:
+            return Spike;
+        case StoneSlopeUp2:
+        case StoneSlopeUp3:
+        case StoneSlopeDown3:
+        case StoneSlopeDown2:
+            return Stone;
+        case Coin:
+            return Reward;
+        case VertStone1:
+        case VertStone2:
+        case VertStone3:
+            return Wall;
+        case Ground:
+            return Soil;
+        case Empty:
+            return Void;
+    }
+    throw std::invalid_argument("Tile::getTileClass(): Invalid tile type");
 }
 
 Tile::operator std::string() const { 
@@ -238,8 +330,8 @@ std::string tileTypeToString(const TileType& type) {
             return "StoneSlopeDown3";
         case StoneSlopeDown2:
             return "StoneSlopeDown2";
-        case StoneSlopeDown1:
-            return "StoneSlopeDown1";
+        case Coin:
+            return "Coin";
         case VertStone1:
             return "VertStone1";
         case VertStone2:

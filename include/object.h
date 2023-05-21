@@ -23,6 +23,7 @@ class Object: public sf::Drawable {
     virtual operator std::string() const = 0;
     virtual void onUpdate(const sf::Time &deltaTime) = 0;
     virtual void onRestart() {}
+    virtual void onNextLevel() {}
     virtual void handleEvent(const sf::Event &event) = 0;
     virtual sf::Vector2f getHitBoxSize();
     virtual void addPhysics(b2World* world) {}
@@ -32,6 +33,7 @@ class Object: public sf::Drawable {
     void setBody(b2Body* body) { m_body = body; }
     b2Body* getBody() const { return m_body; }
     bool showDebug = false;
+
  protected:
     std::string m_name;
     Core* m_coreInstance = nullptr;

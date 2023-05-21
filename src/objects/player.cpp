@@ -2,11 +2,13 @@
 #include <box2d/b2_math.h>
 #include <box2d/b2_body.h>
 #include <box2d/b2_polygon_shape.h>
+#include <box2d/b2_fixture.h>
 #include <box2d/b2_contact.h>
 #include <box2d/b2_world_callbacks.h>
 
 #include <cstdint>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 
 #include <SFML/Graphics/Color.hpp>
@@ -21,6 +23,10 @@
 namespace {
 int contactsCount = 0;
 bool isDied = false;
+bool isToGenerateMap = false;
+b2Fixture* lastMapCheckpoint = nullptr;
+b2Fixture* lastCollectedCoin = nullptr;
+int lastContactId = -1;
 }
 
 Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle,
@@ -51,8 +57,10 @@ Player::Player(const sf::Texture& texture, const sf::IntRect& rectangle,
 
 Player::~Player() {
     delete searchRect;
-    if (m_contactListener)
+    if (m_contactListener) {
         delete m_contactListener;
+        m_coreInstance->getWorld()->SetContactListener(nullptr);
+    }
 }
 
 void Player::updateMovement(const float& milliseconds) {
@@ -72,10 +80,11 @@ void Player::updateMovement(const float& milliseconds) {
         m_lastDirection = RIGHT;
         m_state = MOVING_RIGHT;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && isOnGround()) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && isOnGround()
+                                        && !m_coreInstance->isPaused()) {
         b2Vec2 vel(0, -2.4f);
         m_body->ApplyLinearImpulseToCenter(vel, true);
-        }
+    }
 
     if (m_coreInstance) {
         sf::Vector2f hitbox = getHitBoxSize();
@@ -216,12 +225,15 @@ void Player::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 
 
 void Player::onUpdate(const sf::Time &deltaTime) {
-    if (m_coreInstance && isDied)
+    if (!m_coreInstance)
+        throw std::logic_error("Player::onUpdate : no core instance!");
+
+    if (isDied)
         m_coreInstance->restartGame();
 
     updateMovement(deltaTime.asMilliseconds());
-    updateAnimations();
-    handleEvent(m_event);
+    if (!m_coreInstance->isPaused())
+        updateAnimations();
 
     auto newWorldPos = m_body->GetPosition();
     this->setPosition(coordWorldToPixels(newWorldPos));
@@ -232,9 +244,27 @@ void Player::onUpdate(const sf::Time &deltaTime) {
         m_coreInstance->debug()->updateDebugString("Player World Pos",
             "("+ to_string_with_precision(newWorldPos.x, 2)
             + ", "+ to_string_with_precision(newWorldPos.y, 2) +")");
+        m_coreInstance->debug()->updateDebugString("Player last contact id", 
+                                        std::to_string(lastContactId));
     }
     if (m_coreInstance) {
         m_coreInstance->setPlayerCoords(getPosition());
+
+        // Генерируем карту
+        if (isToGenerateMap) {
+            m_coreInstance->generateMap();
+            if (lastMapCheckpoint)
+                m_coreInstance->getMap()->removeCheckpoint(lastMapCheckpoint);
+            isToGenerateMap = false;
+            lastMapCheckpoint = nullptr;
+        }
+
+        // Собираем монетки
+        if (lastCollectedCoin) {
+            m_coreInstance->getMap()->removeCoin(lastCollectedCoin);
+            m_coreInstance->changeScore(15);
+            lastCollectedCoin = nullptr;
+        }
     }
 }
 
@@ -243,7 +273,16 @@ void Player::onRestart() {
     setPosition(m_startPoint);
     m_body->SetTransform(coordPixelsToWorld(m_startPoint), 0);
     m_body->SetLinearVelocity({0, 0});
+    if (isDied)
+        m_coreInstance->changeScore(-50);
     isDied = false;
+    isToGenerateMap = false;
+    lastMapCheckpoint = nullptr;
+}
+
+void Player::onNextLevel() {
+    setStartPoint(m_coreInstance->getMap()->getStartPoint());
+    onRestart();
 }
 
 void Player::handleEvent(const sf::Event& event) {
@@ -285,29 +324,30 @@ void Player::addPhysics(b2World* world) {
 
 
     b2FixtureDef fd;
+    b2FixtureUserData udata;
     fd.shape = &ps;
 
     fd.density = 1;
     fd.friction = 1;
     fd.restitution = 0;
+    udata.pointer = (uintptr_t) 20;
+    fd.userData = udata;
 
     body->CreateFixture(&fd);
     
-    b2Vec2 collisionSensorSize = coordPixelsToWorld(22, 10);
-    ps.SetAsBox(collisionSensorSize.x, collisionSensorSize.y, b2Vec2(0, hitboxsizes.y / 2.0f), 0);
+    b2Vec2 colSensorSize = coordPixelsToWorld(22, 10);
+    ps.SetAsBox(colSensorSize.x, colSensorSize.y, b2Vec2(0, hitboxsizes.y / 2.0f), 0);
     fd.isSensor = true;
-    b2FixtureUserData udata1;
-    udata1.pointer = (uintptr_t) 10;
-    fd.userData = udata1;
+    udata.pointer = (uintptr_t) 21;
+    fd.userData = udata;
     body->CreateFixture(&fd);
 
 
-    b2Vec2 spikeSensorSize = coordPixelsToWorld(20, 5);
+    b2Vec2 spikeSensorSize = coordPixelsToWorld(12, 1);
     ps.SetAsBox(spikeSensorSize.x, spikeSensorSize.y, b2Vec2(0, hitboxsizes.y / 2.0f), 0);
     fd.isSensor = true;
-    b2FixtureUserData udata2;
-    udata2.pointer = (uintptr_t) 20;
-    fd.userData = udata2;
+    udata.pointer = (uintptr_t) 22;
+    fd.userData = udata;
     
     body->CreateFixture(&fd);
 
@@ -329,11 +369,20 @@ void PlayerContactListener::BeginContact(b2Contact* contact) {
     int fixtureId2 = static_cast<int>(fixtureData2.pointer);
     if (!fixtureId1 || !fixtureId2)
         return;
-    if (fixtureId1 == 99 && fixtureId2 == 10)
+    lastContactId = fixtureId1;
+    if (fixtureId1 == 99 && fixtureId2 == 21)
         ++contactsCount;
-    if (fixtureId1 == 12 && fixtureId2 == 20)
-        isDied = true;        
+    if (fixtureId1 == 12 && fixtureId2 == 22)
+        isDied = true;
+    if (fixtureId1 == 98 && fixtureId2 == 21) {
+        isToGenerateMap = true;
+        lastMapCheckpoint = contact->GetFixtureA();
+    }
+    if (fixtureId1 == 13 && fixtureId2 == 20) {
+        lastCollectedCoin = contact->GetFixtureA();
+    }
 }
+
 void PlayerContactListener::EndContact(b2Contact* contact) {
     b2FixtureUserData& fixtureData1 = contact->GetFixtureA()->GetUserData();
     b2FixtureUserData& fixtureData2 = contact->GetFixtureB()->GetUserData();
@@ -341,6 +390,7 @@ void PlayerContactListener::EndContact(b2Contact* contact) {
     int fixtureId2 = static_cast<int>(fixtureData2.pointer);
     if (!fixtureId1 || !fixtureId2)
         return;
-    if (fixtureId1 == 99 && fixtureId2 == 10)
+    lastContactId = -1;
+    if (fixtureId1 == 99 && fixtureId2 == 21)
         --contactsCount;
 }

@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <iostream>
+#include <list>
 #include <stdexcept>
 #include <string>
 
@@ -22,65 +23,61 @@
 
 sf::RectangleShape* tilePointer = nullptr;
 
-Map::Map() {
+Map::Map(Core* core) {
+    setCoreInstance(core);
     fillMap();
-}
-
-// potential BUG place here
-
-Map::Map(const int& bottom) : m_startPoint(0, bottom) {
-    fillMap();
-    init();    
 }
 
 Map::~Map() {
-    deleteTiles();
+    deleteMap();
     if (tilePointer)
         delete tilePointer;
 }
 
 void Map::init() {
     if (!m_surface) {
-        b2BodyDef bd;
-        // bd.position = coordPixelsToWorld(m_startPoint);
-        m_surface = m_coreInstance->getWorld()->CreateBody(&bd);
+        createSurface();
     }
-    
-    tilePointer = new sf::RectangleShape(sf::Vector2f(24, 24));
+    if (!tilePointer) 
+        tilePointer = new sf::RectangleShape(sf::Vector2f(24, 24));
     tilePointer->setFillColor(sf::Color::Transparent);
     createTiles();
 }
 
 void Map::adjustScale(const sf::Vector2f &factors) {
-    deleteTiles();
+    deleteMap();
     createTiles();
 }
 
-void Map::fillMap() {
-    m_currentMapLayout.push_back("0");
-    m_currentMapLayout.push_back("0");
-    m_currentMapLayout.push_back("0UYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZX");
-    m_currentMapLayout.push_back("0T1111111111111111111111111111111111111111W");
-    m_currentMapLayout.push_back("0S1111111111111111111111111111111111111111V");
-    m_currentMapLayout.push_back("0T1111111111111111111111111111111111111111W");
-    m_currentMapLayout.push_back("0S1111111111111111111111111111111111111111V");
-    m_currentMapLayout.push_back("0T1111111111111111111111111111111111111111W");
-    m_currentMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBC11111111r");
-    m_currentMapLayout.push_back("000000000000000000000kk00kkk000000CBC11111r");
-    m_currentMapLayout.push_back("0000000000000000000000000000000000000BC111r");
-    m_currentMapLayout.push_back("000000000000000000000000000000000000000BCBr");
-    m_currentMapLayout.push_back("0000000000FIJIJH00000000000000000000000000r");
-    for (int i = 0; i < 3; ++i)
-        m_currentMapLayout.push_back("0");
-    for (int i = 0; i < 10; ++i)
-        m_currentMapLayout.push_back("00000000000000000000e");
+void Map::onUpdate(const sf::Time &deltaTime) {
+    for (auto cd : m_coins) {
+        m_layers[cd.pos.y][cd.pos.x]->onUpdate(deltaTime);
+    }
 }
 
-void Map::deleteTiles() {
-    for (auto layer : m_layers)
-        for (auto tile : layer)
-            delete tile;
-    m_layersData.clear();
+void Map::fillMap() {
+    m_defaultMapLayout.push_back("0");
+    m_defaultMapLayout.push_back("0");
+    m_defaultMapLayout.push_back("0UYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZYZX");
+    m_defaultMapLayout.push_back("0T1111111111111111111111111111111111111111W");
+    m_defaultMapLayout.push_back("0S1111111111111111111111111111111111111111V");
+    m_defaultMapLayout.push_back("0T1111111111111111111111111111111111111111W");
+    m_defaultMapLayout.push_back("0S1111111111111111111111111111111111111111V");
+    m_defaultMapLayout.push_back("0T1111111111111111111111111111111111111111W");
+    m_defaultMapLayout.push_back("0ABCBCBCBCBCBCBCBCBCBCBCBCBCBCBCBC11111111r");
+    m_defaultMapLayout.push_back("000000000000000000000kk00kkk000000CBC11111r");
+    m_defaultMapLayout.push_back("0000000000000000000000000000000000000BC111r");
+    m_defaultMapLayout.push_back("000000000000000000000000000000000000000BCBr");
+    m_defaultMapLayout.push_back("0000000000FIJIJH00000000000000000000000000r");
+    for (int i = 0; i < 3; ++i)
+        m_defaultMapLayout.push_back("0");
+    for (int i = 0; i < 10; ++i)
+        m_defaultMapLayout.push_back("00000000000000000000e");
+}
+
+void Map::createSurface() {
+    b2BodyDef bd;
+    m_surface = m_coreInstance->getWorld()->CreateBody(&bd);
 }
 
 sf::Vector2f getTileIdAt(const float& x, const float& y) {
@@ -141,9 +138,7 @@ void Map::addTileCollision(Tile* tile,
 }
 
 Tile* Map::updateTileAt(const float& tileId_x, 
-                        const float& tileId_y, const TileType& newType) {
-    if (newType == TileType::Empty)
-        throw std::domain_error("This action isn't allowed!");
+                            const float& tileId_y, const TileType& newType) {
     Tile* tile = m_layers[tileId_y][tileId_x];
     // if (tile->hasCollision()) {
     //     m_coreInstance->getWorld()->DestroyBody(tile->getBody());
@@ -153,88 +148,95 @@ Tile* Map::updateTileAt(const float& tileId_x,
     return tile;
 }
 
-void Map::applyCollision() {
+void Map::applyCollision(const sf::Vector2f& start, const sf::Vector2f& end) {
+    // Функция должна вызываться после добавления новых тайлов в m_layers
+    // Схема работы: с нижнего слоя с первого элемента и до конца
     if (!m_surface)
         throw std::logic_error("Map::m_surface is nullptr.");
-    for (auto& layer : m_layers) {
-        const int MAX_VERTICES_AT_ONE_SHAPE = 30;
-        b2Vec2 vertices[MAX_VERTICES_AT_ONE_SHAPE];
-        int vertCount = 0;
-        float shapeLength = 0.0;
-        sf::Vector2f lastTileRightCoord;
-        sf::Vector2f lastTileBottomCoord;
-        TileType lastTileType;
-        for (auto& tile : layer) {
-            if (tile->getType() == TileType::Spikes && vertCount) {
-                vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
-                vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
+    b2Vec2 vertices[6];
+    int vertCount = 0;
+    TileClass lastTileClass = Void;
+    float blockWidth = 7;  // real width is blockWidth + world_tile_width
+    for (int y = start.y; y <= end.y; ++y) {
+        for (int x = start.x; x <= end.x; ++x) {
+            auto tileBounds = m_layers[y][x]->getGlobalBounds();
+            auto tileClass = m_layers[y][x]->getClass();
+            if (vertCount > 3 && (tileClass != lastTileClass \
+                        || vertices[2].x - vertices[1].x >= blockWidth)) {
                 int fixtureId = 99;
-                if (lastTileType == TileType::Spikes)
-                    fixtureId = 12;
-                createColBlock(vertices, vertCount, fixtureId); 
-
-                ++m_surfaceFixturesCount;
-                shapeLength = 0;
-                vertCount = 0;
-            }
-            lastTileType = tile->getType();
-            if (tile->hasCollision()) {
-                sf::Vector2f tilePos = tile->getPosition();
-                sf::Vector2f tileSize = tile->getGlobalBounds().getSize();
-                
-                if (!vertCount) {
-                    vertices[vertCount++] = coordPixelsToWorld(
-                        tilePos.x, tilePos.y + tileSize.y);
-                    vertices[vertCount++] = coordPixelsToWorld(tilePos);
+                bool isSensor = false;
+                switch (lastTileClass) {
+                    case Spike:
+                        fixtureId = 12;
+                        isSensor = true;
+                        break;
+                    case Reward:
+                        fixtureId = 13;
+                        isSensor = true;
+                        break;
+                    default:
+                        break;
                 }
-
-                lastTileRightCoord.x = tilePos.x + tileSize.x;
-                lastTileRightCoord.y = tilePos.y;
-                lastTileBottomCoord.x = tilePos.x + tileSize.x;
-                lastTileBottomCoord.y = tilePos.y + tileSize.y;
-                
-                b2Vec2 b2TileSize = coordPixelsToWorld(tileSize);
-                shapeLength += b2TileSize.x;  // ugrh
-            }
-            if (!tile->hasCollision() || shapeLength > 7 || \
-                        vertCount + 3 > MAX_VERTICES_AT_ONE_SHAPE || \
-                        lastTileType == TileType::Spikes) {
-                if (!vertCount)
-                    continue;
-                vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
-                vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
-                int fixtureId = 99;
-                if (lastTileType == TileType::Spikes)
-                    fixtureId = 12;
-                createColBlock(vertices, vertCount, fixtureId); 
-
-                ++m_surfaceFixturesCount;
-                shapeLength = 0;
+                auto fi = createBlock(vertices, vertCount, fixtureId, isSensor);
+                if (lastTileClass == Reward) {
+                    m_coins.push_back({fi, {x-1, y}});  // -1 for prev iter
+                    if (x-1 >= end.x)
+                        std::cout << "here x is " << x << std::endl;
+                }
                 vertCount = 0;
-            } 
+            }
+            if (tileClass != Void) {
+                if (vertCount == 0) {
+                    vertices[0] = coordPixelsToWorld(
+                        tileBounds.left, tileBounds.top + tileBounds.height);
+                    vertices[1] = coordPixelsToWorld(
+                                            tileBounds.left, tileBounds.top);
+                    vertCount = 2;
+                }
+                vertices[2] = coordPixelsToWorld(
+                        tileBounds.left + tileBounds.width, tileBounds.top);
+                vertices[3] = coordPixelsToWorld(
+                                tileBounds.left + tileBounds.width, 
+                                        tileBounds.top + tileBounds.height);
+                vertCount = 4;
+            }
+            lastTileClass = tileClass;
         }
-        // Copy-paste is evil!!
-        if (!vertCount)
-            continue;
-        vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
-        vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
-        
-        vertices[vertCount++] = coordPixelsToWorld(lastTileRightCoord);
-        vertices[vertCount++] = coordPixelsToWorld(lastTileBottomCoord);
-        int fixtureId = 99;
-        if (lastTileType == TileType::Spikes)
-            fixtureId = 12;
-        createColBlock(vertices, vertCount, fixtureId);
-        ++m_surfaceFixturesCount;
-        shapeLength = 0;
+        if (vertCount == 4) {
+            int fixtureId = 99;
+            bool isSensor = false;
+            switch (lastTileClass) {
+                case Spike:
+                    fixtureId = 12;
+                    isSensor = true;
+                    break;
+                case Reward:
+                    fixtureId = 13;
+                    isSensor = true;
+                    break;
+                default:
+                    break;
+            }
+            auto fi = createBlock(vertices, vertCount, fixtureId, isSensor);
+            if (lastTileClass == Reward)
+                m_coins.push_back({fi, {static_cast<int>(end.x), y}});
+        }
         vertCount = 0;
     }
+    
+    // Create checkpoint for map loading
+    auto tB = m_layers[end.y][end.x]->getGlobalBounds();
+    int s = end.y;
+    vertices[0] = coordPixelsToWorld(tB.left, tB.top + tB.height * s);
+    vertices[1] = coordPixelsToWorld(tB.left, tB.top - tB.height * s);
+    vertices[2] = coordPixelsToWorld(tB.left + tB.width, tB.top - tB.height*s);
+    vertices[3] = coordPixelsToWorld(tB.left + tB.width, tB.top + tB.height*s);
+    b2Fixture* checkpoint = createBlock(vertices, 4, 98, true);
+    m_checkpoints.push_back(checkpoint);
 }
 
-void Map::createColBlock(const b2Vec2 *vertices, int vertCount, int fixtureId) {
-    if (!vertCount)
-        return;
-    
+b2Fixture* Map::createBlock(const b2Vec2 *vertices, 
+        int vertCount, int fixtureId, bool isSensor) {
     b2ChainShape shape;
     shape.CreateLoop(vertices, vertCount);
 
@@ -243,14 +245,24 @@ void Map::createColBlock(const b2Vec2 *vertices, int vertCount, int fixtureId) {
     fixdef.density = defaultTileParams.density;
     fixdef.friction = defaultTileParams.friction;
     fixdef.restitution = defaultTileParams.restitution;
+    fixdef.isSensor = isSensor;
     b2FixtureUserData udata;
     udata.pointer = (uintptr_t) fixtureId;
     fixdef.userData = udata;
 
-    m_surface->CreateFixture(&fixdef);
+    return m_surface->CreateFixture(&fixdef);
+}
+
+sf::Vector2f Map::shiftTileId(const sf::Vector2f& tileId) const {
+    sf::Vector2f newTID(tileId);
+    newTID.x -= m_lastCreatedTileId.x;
+    newTID.y -= m_lastCreatedTileId.y;
+    return newTID;
 }
 
 void Map::createTiles() {
+    if (!m_surface)
+        createSurface();
     sf::Vector2f lastTileId;
     sf::Vector2f tileSize;
     tileSize.x = defaultTileParams.width * m_scale.x;
@@ -259,7 +271,7 @@ void Map::createTiles() {
     if (tilePointer)
         tilePointer->setSize(tileSize);
 
-    for (auto layer : m_currentMapLayout) {
+    for (auto layer : m_defaultMapLayout) {
         std::vector<Tile*> layerTiles;
         LayerData layerData;
         for (char tileType : layer) {
@@ -282,8 +294,36 @@ void Map::createTiles() {
         ++lastTileId.y;
     }
 
-    applyCollision();
+    sf::Vector2f start(0, 0);
+    sf::Vector2f end(m_layers.back().size()-1, m_layers.size()-1);
+    applyCollision(start, end);
+
+    // А вот не выйдешь ты больше слева
+    b2Vec2 vert[4];
+    int space = 20;
+    vert[0] = coordPixelsToWorld(m_startPoint.x - 24, m_startPoint.y);
+    vert[0].y += space;
+    vert[1] = coordPixelsToWorld(m_startPoint.x - 24, m_startPoint.y);
+    vert[1].y -= space;
+    vert[2] = coordPixelsToWorld(m_startPoint.x, m_startPoint.y);
+    vert[2].y -= space;
+    vert[3] = coordPixelsToWorld(m_startPoint.x, m_startPoint.y);
+    vert[3].y += space;
+    createBlock(vert, 4, 99);
     // m_layers[6][2] = updateTileAt(2, 6, TileType::GrassSlopeDown3);
+}
+
+void Map::deleteMap() {
+    for (auto layer : m_layers)
+        for (auto tile : layer)
+            delete tile;
+    m_layers.clear();
+    m_layersData.clear();
+    m_coreInstance->getWorld()->DestroyBody(m_surface);
+    m_surface = nullptr;
+    m_checkpoints.clear();
+    m_coins.clear();
+    m_lastCreatedTileId = {0, 0};
 }
 
 TileType Map::getTileTypeAt(const sf::Vector2f& coords) const {
@@ -312,31 +352,115 @@ TileType Map::getTileTypeAt(const sf::Vector2f& coords) const {
 }
 
 void Map::setMapLayout(const std::vector<std::string> &layout) {
-    m_currentMapLayout = layout;
+    m_defaultMapLayout = layout;
 }
 
-sf::Vector2f Map::getUpperPoint() const {
+void Map::appendMapLayout(const std::vector<std::string> &layout) {
+    // Предположим, что на вход нам всегда приходит 
+    // прямоугольная фигура, соразмерная со старыми размерами
+    if (layout.size() == 0)
+        return;
+
+    sf::Vector2f startTileId, endTileId;
+    sf::Vector2f tileSize;
+    tileSize.x = defaultTileParams.width * m_scale.x;
+    tileSize.y = defaultTileParams.width * m_scale.y;
+    startTileId.x = m_layersData.back().tilesCount;
+
+    for (int x = 0; x < layout.back().size(); ++x) {
+        for (int y = 0; y < layout.size(); ++y) {
+            m_layers[y].push_back(createTileAt(
+                        startTileId.x + x, y, (TileType) layout[y][x]));
+            m_layersData[y].endX += tileSize.x;
+            ++m_layersData[y].tilesCount;
+            m_lastCreatedTileId.x = startTileId.x + x;
+            m_lastCreatedTileId.y = y;
+        }
+    } 
+
+    startTileId.y = 0;
+    endTileId.x = startTileId.x + layout.back().size() - 1;
+    endTileId.y = layout.size() - 1;
+    applyCollision(startTileId, endTileId);
+}
+
+sf::Vector2f Map::getStartPoint() {
+    return getStartPoint(m_layers.back().size() / 2 - 10);
+}
+
+sf::Vector2f Map::getStartPoint(const int& atX) {
     int lastLayerId = m_layers.size() - 1;
     if (lastLayerId == -1)
         throw std::logic_error("Map::getUpperPoint(): Tiles vector is empty");
     sf::Vector2f tilePos;
-    for (int y = m_layers.size() - 1; y >= 0; --y) {
-        if (m_layers[y][0]->getType() == Empty)
-            continue;
-        for (int x = 0; x < m_layers[lastLayerId].size(); ++x) {
-            if (m_layers[y][x]->getType() == Spikes)
+    TileType types[4];  // над
+    for (int x = atX+1; x < m_layers.back().size()-2; ++x) {
+        for (int y = m_layers.size() - 2; y >= 0; --y) {
+            // if (m_layers[y][x]->getType() == Empty)
+                // continue;
+            types[0] = m_layers[y][x]->getType();
+            types[1] = m_layers[y+1][x-1]->getType();
+            types[2] = m_layers[y+1][x]->getType();
+            types[3] = m_layers[y+1][x+1]->getType();
+            if (types[0] == Empty)
                 continue;
+            if (types[0] == Coin || types[0] == Spikes)
+                break;
+            // if ((types[1] != Empty || types[2] != Empty || types[3] != Empty)
+            if ((types[1] == Spikes || types[2] == Spikes || types[3] == Spikes))
+                break;  // Danger zone
+            
             tilePos = m_layers[y][x]->getPosition();
-            return sf::Vector2f(tilePos.x + 14.f, tilePos.y);
+            this->updateTileAt(x, y, (TileType) 'G');
+            return sf::Vector2f(tilePos.x + 12, tilePos.y - 24.f);
         }
     }
-    return sf::Vector2f(tilePos.x + 14.f, tilePos.y);
+    return sf::Vector2f();
+    return sf::Vector2f(tilePos.x + 14.f, tilePos.y - 24);
+}
+
+void Map::putStartPoint(const sf::Vector2f &coords) {
+    sf::Vector2f tId;
+    tId.x = coords.x / (defaultTileParams.width * m_scale.x);
+    tId.y = coords.y / (defaultTileParams.height * m_scale.y);
+    this->updateTileAt(tId.x, tId.y, TileType::GrassSingle);
+}
+
+bool Map::removeCheckpoint(b2Fixture* checkpoint) {
+    std::list<b2Fixture*>::iterator it = m_checkpoints.begin();
+    for (auto f : m_checkpoints) {
+        if (f == checkpoint) {
+            m_surface->DestroyFixture(f);
+            f = nullptr;
+            m_checkpoints.erase(it);
+            return true;
+        }
+        ++it;
+    }
+    return false;
+}
+
+bool Map::removeCoin(b2Fixture* coin) {
+    std::list<CoinData>::iterator it = m_coins.begin();
+    for (auto cd : m_coins) {
+        if (cd.fixture == coin) {
+            m_surface->DestroyFixture(cd.fixture);
+            cd.fixture = nullptr;
+            m_layers[cd.pos.y][cd.pos.x] = updateTileAt(
+                            cd.pos.x, cd.pos.y, TileType::Empty);
+            m_coins.erase(it);
+            return true;
+        }
+        ++it;
+    }
+    return false;
 }
 
 void Map::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     for (auto layer : m_layers) {
         for (auto tile : layer) {
-            target.draw((sf::Sprite) *tile, states);
+            if (tile->getType() != Empty)
+                target.draw((sf::Sprite) *tile, states);
         }
     }
     if (showDebug && tilePointer)

@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     Player* playerIdle1 = new Player(playerSheet,
         sf::IntRect(0, 0, 50, 40    ), sf::Vector2f(22, 32));
 
-    sf::Vector2f playerStartPos = core.getMap()->getUpperPoint();
+    sf::Vector2f playerStartPos = core.getMap()->getStartPoint();
     playerStartPos.y -= 44;
     playerIdle1->setStartPoint(playerStartPos);
     playerIdle1->setPosition(playerStartPos);
@@ -37,3 +37,14 @@ int main(int argc, char* argv[]) {
     delete playerIdle1;
     return 0;
 }
+
+
+/* Box2d Fixture Ids:
+ *   99 - ground tiles
+ *   98 - map load markers
+ *   22 - player spike sensor
+ *   21 - player foot sensor
+ *   20 - player hitbox
+ *   13 - coin
+ *   12 - spike
+ */

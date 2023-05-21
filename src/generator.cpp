@@ -1,7 +1,8 @@
 #include "generator.h"
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
-
+#include <SFML/System/Vector2.hpp>
 
 GenResult Generator::randomWalkTop(const int& width, const int& height, 
                         const int& seed, const int& shiftX, 
@@ -9,13 +10,17 @@ GenResult Generator::randomWalkTop(const int& width, const int& height,
     std::srand(seed);
     GenResult map;
     int lastHeight = std::rand() % height;
+    lastHeight = m_height.count(seed) ? m_height[seed] : lastHeight;
     int prevHeight = lastHeight;
-    int sectionWidth = (std::rand() % maxSecWidth - minSecWidth) + minSecWidth;
+    int sectionWidth = (std::rand() % (maxSecWidth - minSecWidth));
+    sectionWidth += minSecWidth;
     int currSecWidth = 0;
     bool hasSpike = false;
     bool isStart = false;
     bool isEnd = false;
     int spikesLength = 0;
+    sf::Vector2i lastSpikeEnd;
+    sf::Vector2i lastCoin;
 
     for (int i = 0; i < shiftX; ++i)
         std::rand();
@@ -29,7 +34,7 @@ GenResult Generator::randomWalkTop(const int& width, const int& height,
         if (nextMove == 0 && lastHeight > 2 && currSecWidth > sectionWidth) {
             --lastHeight;
             currSecWidth = 0;
-            sectionWidth = (std::rand() % maxSecWidth - minSecWidth);
+            sectionWidth = (std::rand() % (maxSecWidth - minSecWidth));
             sectionWidth += minSecWidth;
             isStart = true;
         }
@@ -38,27 +43,41 @@ GenResult Generator::randomWalkTop(const int& width, const int& height,
                                 && currSecWidth > sectionWidth) {
             ++lastHeight;
             currSecWidth = 0;
-            sectionWidth = (std::rand() % maxSecWidth - minSecWidth);
+            sectionWidth = (std::rand() % (maxSecWidth - minSecWidth));
             sectionWidth += minSecWidth;
             isStart = true;
         }
 
         hasSpike = x > 3 ? std::rand() % 2 : 0;
+        bool hasCoin = std::rand() % 10 > 5;
         
         ++currSecWidth;
         if (currSecWidth > sectionWidth 
-                    && lastHeight < height - 2 && lastHeight > 2) {
+                    && (lastHeight < height - 2 || lastHeight > 2)) {
             isEnd = true;
         }
         
         for (int y = lastHeight; y >= 0; --y) {
+            // float spikeDist = std::sqrt(
+            //                 (x - lastSpikeEnd.x) * (x - lastSpikeEnd.x ) + 
+            //                 (y+1 - lastSpikeEnd.y) * (y+1 - lastSpikeEnd.y));
+            float spikeDist = distance(lastSpikeEnd, {x, y+1});
             if (hasSpike && spikesLength <= 3) {
-                if (y+1 < height) {
+                if (y+1 < height && (map[x-1][y+1] == 107 || spikeDist > 2)) {
                     map[x][y+1] = 107;  // spike
                     ++spikesLength;
                     hasSpike = false;
+                    lastSpikeEnd = {x, y + 1};
                 }
             } 
+            if (hasCoin) {
+                int h = std::rand() % 3 + 2;
+                if (y+h < height && distance(lastCoin, {x, y+h}) > 8) {
+                    map[x][y+h] = 112;  // coin
+                    lastCoin = {x, y + h};
+                }
+                hasCoin = false;
+            }
             if (y == lastHeight) {
                 map[x][y] = (currSecWidth + 1) % 2 ? 66 : 67;  // tile
             } else {
@@ -78,6 +97,7 @@ GenResult Generator::randomWalkTop(const int& width, const int& height,
             hasSpike = false;
         }
     }
+    m_height[seed] = lastHeight;
     return map;
 }
 
@@ -93,6 +113,12 @@ std::vector<std::string> Generator::to_string(const GenResult& gr) {
         // str[row] += '\0';
     }
     return str;
+}
+
+template<typename T>
+float Generator::distance(sf::Vector2<T> p1, sf::Vector2<T> p2) const {
+    return std::sqrt((p2.x - p1.x) * (p2.x - p1.x) + 
+                                (p2.y - p1.y) * (p2.y - p1.y));
 }
 
 

@@ -145,6 +145,7 @@ Tile* Map::updateTileAt(const float& tileId_x,
     // }
     delete tile;
     tile = createTileAt(tileId_x, tileId_y, newType);
+    m_layers[tileId_y][tileId_x] = tile;
     return tile;
 }
 
